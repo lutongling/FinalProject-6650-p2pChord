@@ -1,4 +1,11 @@
+import java.rmi.RemoteException;
+
 public class NodeImpl extends AbstractNode {
+
+  protected NodeImpl(String ipAddress, int portNum, int id) throws RemoteException {
+    super(ipAddress, portNum, id);
+  }
+
   @Override
   public Node findSuccessor(long id) {
     return null;

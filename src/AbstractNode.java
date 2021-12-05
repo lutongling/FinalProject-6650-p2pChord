@@ -1,19 +1,42 @@
+import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
-public abstract class AbstractNode implements Node {
+import utils.P2PLogger;
+
+public abstract class AbstractNode extends UnicastRemoteObject implements Node, Serializable {
   private static final long serialVersionUID = 1L;
 
   protected long id;
   protected String ipAddress;
   protected int portNum;
   protected Map<Long, FingerTableValue> fingerTable;
-  protected Logger log;
+  protected P2PLogger log;
 
+  // not sure if successor field is needed. If so please initialize in constructor.
   protected Node successor;
+
   protected Node predecessor;
 
+  public AbstractNode(String ipAddress, int portNum, int id) throws RemoteException {
+    super();
+    this.ipAddress = ipAddress;
+    this.portNum = portNum;
+    this.id = id;
+    this.fingerTable = new HashMap<>();
+    this.predecessor = null;
+    this.log = new P2PLogger("NodeLogger");
+  }
 
+
+  /*
+    These are getters and setters
+    temporary not used, if used, define them in interface first
+  */
+
+  /*
   public long getId() {
     return id;
   }
@@ -46,7 +69,7 @@ public abstract class AbstractNode implements Node {
     this.fingerTable = fingerTable;
   }
 
-  public Logger getLog() {
+  public P2PLogger getLog() {
     return log;
   }
 
@@ -69,6 +92,7 @@ public abstract class AbstractNode implements Node {
   public void setPredecessor(Node predecessor) {
     this.predecessor = predecessor;
   }
+  */
 
 
 
