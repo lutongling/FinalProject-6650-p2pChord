@@ -24,7 +24,7 @@ public interface Node extends Serializable, Remote {
   // Zhixuan
   void updateOthers();
 
-  void updateFingerTable();
+  void updateFingerTable(Node s, long i);
 
 
 

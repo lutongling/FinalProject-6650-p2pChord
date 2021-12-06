@@ -13,6 +13,8 @@ public abstract class AbstractNode implements Node {
   protected Node successor;
   protected Node predecessor;
 
+  protected int m;
+
 
   public long getId() {
     return id;
