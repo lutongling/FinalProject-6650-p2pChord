@@ -233,4 +233,13 @@ public class NodeImpl extends AbstractNode {
       }
     }
   }
+
+  // entry main point
+  public static void main(String[] args) throws RemoteException {
+    // ip address
+    // port number
+//    // identifier
+//    Node node = new NodeImpl();
+//    node.join()
+  }
 }
