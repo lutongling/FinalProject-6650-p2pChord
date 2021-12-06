@@ -1,5 +1,6 @@
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.util.Random;
 
 public class NodeImpl extends AbstractNode {
 
@@ -74,108 +75,29 @@ public class NodeImpl extends AbstractNode {
   }
 
   @Override
-  public void stabilize() {
+  public void stabilize() throws RemoteException {
+    log.logInfoMessage("Stabilizing...");
+    // not sure if we can do this directly instead of connecting since we are using the Node reference
+    // Node x = this.getSuccessor().getPredecessor();
+    Node successor = this.getSuccessor();
+    Node x = null;
 
+    try {
+      Node connected = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/Node");
+      x = connected.getPredecessor();
+    } catch (Exception e) {
+      log.logErrorMessage("Connection failed in stabilize." + e.getMessage());
+      // e.printStackTrace();
+    }
 
-//    log.logInfoMessage("Stabilization running on the node: " + this.id);
-//    Node successor = null;
-//    Node tempPeer = null;
-//
-//    Node successorFound = null;
-//    Node tempFound = null;
-//
-//    try {
-//      successor = this.getSuccessor();
-//
-//      if(successor.getId() == this.id) {
-//        // single node
-//        successorFound = this;
-//
-//      } else {
-//        // RMI call to find
-//        log.logInfoMessage("RMI CALL to find the successor:");
-//        successorFound = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/ChordNode");
-//      }
-//    } catch (Exception e) {
-//      // e.printStackTrace();
-//      log.logErrorMessage("Connected failed.");
-//    }
-//
-//    // current successor is dead, trying to find the other candidates
-//    if(successorFound == null) {
-//
-//      int i;
-//
-//      for(i = 1; i < fingerTable.size(); i++) {
-//        tempPeer = fingerTable.get((long) i).getSuccessor();
-//        // in a loop iterating over its successors
-//        assert successor != null;
-//        if(tempPeer.getId() != successor.getId() && tempPeer.getId() != this.id)
-//          break;
-//      }
-//
-//      // found someone in the current finger table failed!
-//      if(i != fingerTable.size()) {
-//        assert tempPeer != null;
-//
-//        while(true) {
-//          try {
-//            log.logInfoMessage("Current Node in predecessor chain" + tempPeer.getId());
-//            tempFound = (Node) Naming.lookup("rmi://" + tempPeer.getIpAddress() + ":" + tempPeer.getPortNum() + "/ChordNode");
-//
-//            // if id matched, meaning found
-//            if (tempFound.getPredecessor().getId() == successor.getId()) {
-//              tempFound.setPredecessor(this);
-////              this.setSuccessor(tempPeer);
-//              this.setSuccessor(tempFound);
-//
-//              log.logInfoMessage("New successor has been found: " + tempFound.getId());
-//              break;
-//            }
-//
-//            // if id unmatched, continue the process
-//            tempPeer = tempFound.getPredecessor();
-//
-//          } catch (Exception e) {
-//            // e.printStackTrace();
-//            log.logErrorMessage("Error occurs in stabilization");
-//          }
-//
-//          // Future task consideration: Should we have a bootstrap node class?
-//          // a boot node is a very first node joining the network
-//          // it represents at least on existing node
-//        }
-//
-//        // not founding someone failed
-//      } else {
-//        // TODO: need to discuss: bootstrap class operation
-//      }
-//
-//    } else {
-//      // successorFound != null
-//      // Current successor is alive
-//      Node x = null;
-//      try {
-//        x = successorFound.getPredecessor();
-//      } catch (RemoteException e) {
-//        log.logErrorMessage("Error");
-//        // e.printStackTrace();
-//      }
-//
-//      if((x != null)
-//              && (inInterval(x.getId(), this.id, this.fingerTable[0].getNode().getId()))) {
-//        this.fingerTable[0].setNode(x);
-//      }
-//
-//      try {
-//        if(successor.getId() == this.id) {
-//          successorFound.notify(this);
-//        }
-//      } catch (RemoteException e) {
-//        // e.printStackTrace();
-//        log.logErrorMessage("Error in calling notify from the successor found");
-//      }
-//    }
+    // x >>> ( , )
+    if(x != null && inInterval(x.getId(), this.id, successor.getId())) {
+      successor = x;
+    }
+
+    // Not sure if this should be done by reconnecting to x?
+    successor.notify();
+
   }
 
   // helper to justify if x is within set (open, close)
@@ -194,8 +116,13 @@ public class NodeImpl extends AbstractNode {
   }
 
   @Override
-  public void fixFingers() {
+  public void fixFingers() throws RemoteException {
+    log.logInfoMessage("Fixing fingers...");
 
+    Random rand = new Random();
+    int randomIdx = rand.nextInt(m - 1) + 2;
+
+    this.fingerTable[randomIdx].setNode(this.findSuccessor(this.fingerTable[randomIdx].getStart()));
   }
 
   @Override
