@@ -1,6 +1,7 @@
 public class FingerTableValue {
 
   private int start;
+
   private Node node;
 
   /**
