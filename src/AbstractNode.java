@@ -15,8 +15,9 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
   protected Map<Long, FingerTableValue> fingerTable;
   protected P2PLogger log;
 
-  // not sure if successor field is needed. If so please initialize in constructor.
-  protected Node successor;
+  // This successor field is not needed, it can be accessed by using first element fingerTable
+  // protected Node successor;
+  // See getSuccessor()
 
   protected Node predecessor;
 
@@ -36,31 +37,37 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
     temporary not used, if used, define them in interface first
   */
 
-  /*
+  @Override
   public long getId() {
     return id;
   }
 
+  @Override
   public void setId(long id) {
     this.id = id;
   }
 
+  @Override
   public String getIpAddress() {
     return ipAddress;
   }
 
+  @Override
   public void setIpAddress(String ipAddress) {
     this.ipAddress = ipAddress;
   }
 
+  @Override
   public int getPortNum() {
     return portNum;
   }
 
+  @Override
   public void setPortNum(int portNum) {
     this.portNum = portNum;
   }
 
+/*
   public Map<Long, FingerTableValue> getFingerTable() {
     return fingerTable;
   }
@@ -77,23 +84,26 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
     this.log = log;
   }
 
+*/
+
   public Node getSuccessor() {
-    return successor;
+    if(fingerTable != null && fingerTable.size() > 0)
+      return this.fingerTable.get(0L).getSuccessor();
+
+    return null;
   }
 
-  public void setSuccessor(Node successor) {
-    this.successor = successor;
+  public void setSuccessor(Node node) {
+    this.fingerTable.get(0L).setSuccessor(node);
   }
 
   public Node getPredecessor() {
     return predecessor;
   }
 
-  public void setPredecessor(Node predecessor) {
-    this.predecessor = predecessor;
+  public void setPredecessor(Node node) {
+    this.predecessor = node;
   }
-  */
-
 
 
 

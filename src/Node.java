@@ -60,6 +60,28 @@ public interface Node extends Serializable, Remote {
 
   void updateFingerTable() throws RemoteException;
 
+  // getters and setters
+
+  long getId();
+
+  void setId(long id);
+
+  String getIpAddress();
+
+  void setIpAddress(String ipAddress);
+
+  int getPortNum();
+
+  void setPortNum(int portNum);
+
+  Node getSuccessor() throws RemoteException;
+
+  void setSuccessor(Node node) throws RemoteException;
+
+  Node getPredecessor() throws RemoteException;
+
+  void setPredecessor(Node node) throws RemoteException;
+
 
 
 
