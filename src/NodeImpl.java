@@ -92,7 +92,7 @@ public class NodeImpl extends AbstractNode {
     for(int i=1; i<=m-1; i++) {
       int fingerINodeId = this.fingerTable[i].getNode().getId();
       int fingerIPlus1DotStart = this.fingerTable[i+1].getStart();
-      if( fingerIPlus1DotStart > this.getId() && fingerIPlus1DotStart < fingerINodeId ){
+      if( inIntervalIncludeOpen(fingerIPlus1DotStart, this.getId(), fingerINodeId) ){
         this.fingerTable[i+1].setNode(this.fingerTable[i].getNode());  // this.fingerTable[i+1].node = this.fingerTable[i].getNode();
       } else {
         try{
@@ -204,7 +204,7 @@ public class NodeImpl extends AbstractNode {
       try {
         //  use naming.lookup on new Node before use any method of the node
         //  (except getter and setter).
-        p = (Node) Naming.lookup("rmi://" + ((AbstractNode) p).getIpAddress()
+        p = (Node) Naming.lookup("rmi://" +  p.getIpAddress()
                 + ":" + ((AbstractNode) p).getPortNum() + "/Node");
         p.updateFingerTable(this, i);
       } catch (Exception e) {
@@ -219,7 +219,7 @@ public class NodeImpl extends AbstractNode {
     if(s == this) {return;} // The finger table of a Node can't contain itself.
     int sId = (s).getId();
     int fingerINodeId = (this.fingerTable[i].getNode()).getId();
-    if( sId > this.getId() && sId < fingerINodeId){
+    if( inIntervalIncludeOpen(sId, this.getId(), fingerINodeId) ){
       this.fingerTable[i].setNode(s);  // fingerTable[i].node = s;
       Node p = this.predecessor;
       try {
