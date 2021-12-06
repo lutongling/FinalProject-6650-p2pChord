@@ -1,6 +1,3 @@
-import java.net.MalformedURLException;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 public class NodeImpl extends AbstractNode {
@@ -10,17 +7,17 @@ public class NodeImpl extends AbstractNode {
   }
 
   @Override
-  public Node findSuccessor(long id) {
+  public Node findSuccessor(int id) {
     return null;
   }
 
   @Override
-  public Node findPredecessor(long id) {
+  public Node findPredecessor(int id) {
     return null;
   }
 
   @Override
-  public Node closestPrecedingFinger(long id) {
+  public Node closestPrecedingFinger(int id) {
     return null;
   }
 
@@ -31,6 +28,8 @@ public class NodeImpl extends AbstractNode {
 
   @Override
   public void stabilize() {
+
+
 //    log.logInfoMessage("Stabilization running on the node: " + this.id);
 //    Node successor = null;
 //    Node tempPeer = null;

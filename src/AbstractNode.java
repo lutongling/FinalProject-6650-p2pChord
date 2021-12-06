@@ -1,8 +1,6 @@
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
-import java.util.Map;
 
 import utils.P2PLogger;
 
@@ -10,7 +8,6 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
   private static final long serialVersionUID = 1L;
 
   protected int m;
-
   protected int id;
   protected String ipAddress;
   protected int portNum;
@@ -35,11 +32,6 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
     this.log = new P2PLogger("NodeLogger");
   }
 
-
-  /*
-    These are getters and setters
-    temporary not used, if used, define them in interface first
-  */
 
   @Override
   public int getId() {
@@ -70,25 +62,6 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
   public void setPortNum(int portNum) {
     this.portNum = portNum;
   }
-
-/*
-  public Map<Long, FingerTableValue> getFingerTable() {
-    return fingerTable;
-  }
-
-  public void setFingerTable(Map<Long, FingerTableValue> fingerTable) {
-    this.fingerTable = fingerTable;
-  }
-
-  public P2PLogger getLog() {
-    return log;
-  }
-
-  public void setLog(Logger log) {
-    this.log = log;
-  }
-
-*/
 
   public Node getSuccessor() {
     if(fingerTable != null && fingerTable.length > 0)

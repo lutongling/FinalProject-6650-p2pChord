@@ -14,11 +14,11 @@ public class FingerTableValue {
   /**
    * Construct a finger table value, which is the information the finger table maintains.
    * @param start The start value for each finger table value
-   * @param successor The immediate next node on the identifier circle(i.e. the first finger)
+   * @param node The immediate next node on the identifier circle(i.e. the first finger)
    */
-  public FingerTableValue(int start, Node successor) {
+  public FingerTableValue(int start, Node node) {
     this.start = start;
-    this.node = successor;
+    this.node = node;
   }
 
   public int getStart() {
