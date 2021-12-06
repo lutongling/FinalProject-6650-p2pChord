@@ -36,7 +36,15 @@ public class NodeImpl extends AbstractNode {
 
   @Override
   public void join(Node node) {
+    if (node != null) {
+      // current node is the only node in the network
+      this.initFingerTable(node);
+      this.updateOthers();
+    } else {
+      for (int i = 1; i <= this.m; i++) {
 
+      }
+    }
   }
 
   @Override

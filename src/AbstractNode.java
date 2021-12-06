@@ -4,6 +4,8 @@ import java.util.logging.Logger;
 public abstract class AbstractNode implements Node {
   private static final long serialVersionUID = 1L;
 
+  protected int m;
+
   protected long id;
   protected String ipAddress;
   protected int portNum;
