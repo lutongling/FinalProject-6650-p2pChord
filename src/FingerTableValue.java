@@ -1,5 +1,4 @@
 public class FingerTableValue {
-
   private int start;
   private Node node;
 
@@ -36,6 +35,5 @@ public class FingerTableValue {
   public void setNode(Node node) {
     this.node = node;
   }
-
 
 }

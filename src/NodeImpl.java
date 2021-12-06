@@ -1,6 +1,10 @@
 import java.rmi.Naming;
+
 import java.rmi.RemoteException;
 import java.util.Random;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.logging.Level;
 
 public class NodeImpl extends AbstractNode {
 
@@ -71,7 +75,34 @@ public class NodeImpl extends AbstractNode {
 
   @Override
   public void initFingerTable(Node node) {
+    try {
+      node = (Node) Naming.lookup("rmi://" + ((AbstractNode) node).getIpAddress()
+              + ":" + ((AbstractNode) node).getPortNum() + "/Node");
+    } catch (Exception e) {
+      log.logErrorMessage("Exception occurs in initFingerTable:" + e.getMessage());
+    }
+    try {
+      this.fingerTable[1].setNode(node.findSuccessor(this.fingerTable[1].getStart()));  // this.fingerTable[1].node = node.findSuccessor(this.fingerTable[1].getStart());
+      this.predecessor = this.getSuccessor().getPredecessor();
+      this.getSuccessor().setPredecessor(this); // "this" is n  // this.getSuccessor().predecessor = this;
+    } catch (Exception e) {
+      log.logErrorMessage("Can't get predecessor in initFingerTable: " + e.getMessage());
+    }
 
+    for(int i=1; i<=m-1; i++) {
+      int fingerINodeId = this.fingerTable[i].getNode().getId();
+      int fingerIPlus1DotStart = this.fingerTable[i+1].getStart();
+      if( fingerIPlus1DotStart > this.getId() && fingerIPlus1DotStart < fingerINodeId ){
+        this.fingerTable[i+1].setNode(this.fingerTable[i].getNode());  // this.fingerTable[i+1].node = this.fingerTable[i].getNode();
+      } else {
+        try{
+        this.fingerTable[i+1].setNode(node.findSuccessor(fingerIPlus1DotStart));  // this "node" is the input n' 
+//        this.fingerTable[i+1].node = node.findSuccessor(fingerIPlus1DotStart);
+        } catch (Exception e) {
+          log.logErrorMessage("Can't get predecessor in initFingerTable: " + e.getMessage());
+        }
+      }
+    }
   }
 
   public void stabilize() throws RemoteException {
@@ -96,7 +127,6 @@ public class NodeImpl extends AbstractNode {
 
     // Not sure if this should be done by reconnecting to x?
     successor.notify();
-
   }
 
 
@@ -165,12 +195,39 @@ public class NodeImpl extends AbstractNode {
   }
 
   @Override
-  public void updateOthers() {
+  public void updateOthers() throws RemoteException {
+    for(int i=1;i<=m;i++) {
+      Node p = findPredecessor(this.id - (int)Math.pow(2,i-1));
+      try {
+        //  use naming.lookup on new Node before use any method of the node
+        //  (except getter and setter).
+        p = (Node) Naming.lookup("rmi://" + ((AbstractNode) p).getIpAddress()
+                + ":" + ((AbstractNode) p).getPortNum() + "/Node");
+        p.updateFingerTable(this, i);
+      } catch (Exception e) {
+        log.logErrorMessage( "Exception occurs in updateOthers:" + e.getMessage());
+      }
 
+    }
   }
 
   @Override
-  public void updateFingerTable() {
-
+  public void updateFingerTable(Node s, int i) {
+    if(s == this) {return;} // The finger table of a Node can't contain itself.
+    int sId = (s).getId();
+    int fingerINodeId = (this.fingerTable[i].getNode()).getId();
+    if( sId > this.getId() && sId < fingerINodeId){
+      this.fingerTable[i].setNode(s);  // fingerTable[i].node = s;
+      Node p = this.predecessor;
+      try {
+        //  use naming.lookup on new Node before use any method of the node
+        //  (except getter and setter).
+        p = (Node) Naming.lookup("rmi://" + p.getIpAddress()
+                + ":" + p.getPortNum() + "/Node");
+        p.updateFingerTable(s, i);
+      } catch (Exception e) {
+        log.logErrorMessage("Exception occurs in updateFingerTable:" + e.getMessage());
+      }
+    }
   }
 }
