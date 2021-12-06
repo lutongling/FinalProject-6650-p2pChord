@@ -63,22 +63,22 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
     this.portNum = portNum;
   }
 
-  public Node getSuccessor() {
+  public Node getSuccessor() throws RemoteException {
     if(fingerTable != null && fingerTable.length > 0)
       return this.fingerTable[0].getNode();
 
     return null;
   }
 
-  public void setSuccessor(Node node) {
+  public void setSuccessor(Node node) throws RemoteException {
     this.fingerTable[0].setNode(node);
   }
 
-  public Node getPredecessor() {
+  public Node getPredecessor() throws RemoteException {
     return predecessor;
   }
 
-  public void setPredecessor(Node node) {
+  public void setPredecessor(Node node) throws RemoteException {
     this.predecessor = node;
   }
 
