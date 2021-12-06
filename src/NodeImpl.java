@@ -1,6 +1,11 @@
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.rmi.Naming;
 
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -8,8 +13,8 @@ import java.util.logging.Level;
 
 public class NodeImpl extends AbstractNode {
 
-  protected NodeImpl(String ipAddress, int portNum, int id) throws RemoteException {
-    super(ipAddress, portNum, id);
+  protected NodeImpl(String ipAddress, int portNum) throws RemoteException, UnsupportedEncodingException, NoSuchAlgorithmException {
+    super(ipAddress, portNum);
   }
 
   @Override
@@ -62,7 +67,7 @@ public class NodeImpl extends AbstractNode {
   }
 
   @Override
-  public Node closestPrecedingFinger(int id) {
+  public Node closestPrecedingFinger(int id) throws RemoteException {
     for(int i = fingerTable.length - 1; i > 0; i--) {
       Node nextNode = fingerTable[i].getNode();
       // nextNode ( , )
@@ -74,7 +79,7 @@ public class NodeImpl extends AbstractNode {
   }
 
   @Override
-  public void initFingerTable(Node node) {
+  public void initFingerTable(Node node) throws RemoteException {
     try {
       node = (Node) Naming.lookup("rmi://" + ((AbstractNode) node).getIpAddress()
               + ":" + ((AbstractNode) node).getPortNum() + "/Node");
@@ -115,6 +120,7 @@ public class NodeImpl extends AbstractNode {
     try {
       Node connected = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/Node");
       x = connected.getPredecessor();
+      log.logInfoMessage("Predecessor: " + x.getId());
     } catch (Exception e) {
       log.logErrorMessage("Connection failed in stabilize." + e.getMessage());
       // e.printStackTrace();
@@ -126,7 +132,19 @@ public class NodeImpl extends AbstractNode {
     }
 
     // Not sure if this should be done by reconnecting to x?
-    successor.notify();
+    try {
+      successor = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/Node");
+      successor.notify();
+      log.logInfoMessage("Successor: " + successor.getId());
+    } catch (Exception e) {
+      log.logErrorMessage("Connection failed for successor cin stabilize." + e.getMessage());
+      // e.printStackTrace();
+    }
+
+
+
+    this.printFingerTable(this.fingerTable);
+
   }
 
 
@@ -145,6 +163,16 @@ public class NodeImpl extends AbstractNode {
     return x == close || inInterval(x, open, close);
   }
 
+  // helper to print finger table
+  private void printFingerTable(FingerTableValue[] fingerTable) throws RemoteException {
+    for(int i = 0; i < fingerTable.length; i++) {
+      log.logInfoMessage("Start for " + i + " " + fingerTable[i].getStart());
+      log.logInfoMessage("Node ip address " + fingerTable[i].getNode().getIpAddress());
+      log.logInfoMessage("Node port address " + fingerTable[i].getNode().getPortNum());
+      log.logInfoMessage("Node id " + fingerTable[i].getNode().getId());
+    }
+  }
+
   @Override
   public void fixFingers() throws RemoteException {
     log.logInfoMessage("Fixing fingers...");
@@ -153,10 +181,17 @@ public class NodeImpl extends AbstractNode {
     int randomIdx = rand.nextInt(m - 1) + 2;
 
     this.fingerTable[randomIdx].setNode(this.findSuccessor(this.fingerTable[randomIdx].getStart()));
+
+    log.logInfoMessage("Predecessor: " + this.predecessor.getId());
+
+    log.logInfoMessage("Successor: " + this.getSuccessor().getId());
+
+    this.printFingerTable(this.fingerTable);
+
   }
 
   @Override
-  public void notify(Node node) {
+  public void notify(Node node) throws RemoteException {
     // TODO BE called in stabilization
 
     // (node.getId() < this.id && node.getId() > this.predecessor.getId())
@@ -188,10 +223,13 @@ public class NodeImpl extends AbstractNode {
   public void join(Node node) {
     this.predecessor = null;
     try {
+      node = (Node) Naming.lookup("rmi://" + node.getIpAddress() + ":" + node.getPortNum() + "/Node");
       this.setSuccessor(node.findSuccessor(this.getId()));
     } catch (RemoteException e) {
       // todo: throw? catch? and log
       log.logErrorMessage("Failed to join");
+      e.printStackTrace();
+    } catch (MalformedURLException | NotBoundException e) {
       e.printStackTrace();
     }
   }
@@ -215,7 +253,7 @@ public class NodeImpl extends AbstractNode {
   }
 
   @Override
-  public void updateFingerTable(Node s, int i) {
+  public void updateFingerTable(Node s, int i) throws RemoteException {
     if(s == this) {return;} // The finger table of a Node can't contain itself.
     int sId = (s).getId();
     int fingerINodeId = (this.fingerTable[i].getNode()).getId();
@@ -234,12 +272,83 @@ public class NodeImpl extends AbstractNode {
     }
   }
 
+  public void echo(Node joinedNode) throws RemoteException {
+    log.logInfoMessage("New joined node IP: " + joinedNode.getIpAddress() +
+            " New joined node Port" + joinedNode.getPortNum() +
+            " New joined node ID: " + joinedNode.getId());
+  }
+
+  public void createFingerTable() throws RemoteException {
+//    AbstractNode absNode = (AbstractNode) node;
+
+    int i;
+    for (i = 1; i < m; i++) {
+      int start = (this.getId() + (int) Math.pow(2, i - 1)) % (int) Math.pow(2, m);
+      FingerTableValue fte = new FingerTableValue(start, this);
+      this.fingerTable[i - 1] = fte;
+    }
+
+  }
+
   // entry main point
-  public static void main(String[] args) throws RemoteException {
-    // ip address
-    // port number
-//    // identifier
-//    Node node = new NodeImpl();
-//    node.join()
+  public static void main(String[] args) throws Exception {
+
+    // TODO: length
+    // 0, 1, 2, 3
+
+    if(args.length == 2) {
+      String newNodeIpAddress = args[0];
+      int newNodePort = Integer.parseInt(args[1]);
+      Node newNode = new NodeImpl(newNodeIpAddress, newNodePort);
+
+      LocateRegistry.createRegistry(newNodePort);
+      Naming.rebind("rmi://" + newNodeIpAddress + ":" + newNodePort + "/Node", newNode);
+
+      newNode.createFingerTable();
+
+//      while(true) {
+//        newNode.stabilize();
+//        newNode.fixFingers();
+//
+//        Thread.sleep(5000);
+//      }
+
+    } else if (args.length == 4){
+      String newNodeIpAddress = args[0];
+      int newNodePort = Integer.parseInt(args[1]);
+
+      String nodeInChordIpAddress = args[2];
+      int nodeInChordPort = Integer.parseInt(args[3]);
+
+      Node newNode = new NodeImpl(newNodeIpAddress, newNodePort);
+//    Node nodeInChord = new NodeImpl(nodeInChordIpAddress, nodeInChordPort);
+      Node nodeInChord = (Node) Naming.lookup("rmi://" + nodeInChordIpAddress
+              + ":" + nodeInChordPort + "/Node");
+
+      newNode.createFingerTable();
+      // nodeInChord.createFingerTable();
+
+      LocateRegistry.createRegistry(newNodePort);
+      Naming.rebind("rmi://" + newNodeIpAddress + ":" + newNodePort + "/Node", newNode);
+
+      newNode.join(nodeInChord);
+      nodeInChord.echo(newNode);
+
+      while(true) {
+        newNode.stabilize();
+        newNode.fixFingers();
+
+        Thread.sleep(5000);
+      }
+
+    }
+
+//    new Runnable() {
+//      @Override
+//      public void run() {
+//        while()
+//      }
+//    }
+
   }
 }

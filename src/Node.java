@@ -58,21 +58,25 @@ public interface Node extends Serializable, Remote {
   // Zhixuan
   void updateOthers() throws RemoteException;
 
-  void updateFingerTable(Node s, int i);
+  void updateFingerTable(Node s, int i) throws RemoteException;
+
+  void echo(Node joinedNode) throws RemoteException;
+
+  void createFingerTable() throws RemoteException;
 
   // getters and setters
 
-  int getId();
+  int getId() throws RemoteException;
 
-  void setId(int id);
+  void setId(int id) throws RemoteException;
 
-  String getIpAddress();
+  String getIpAddress() throws RemoteException;
 
-  void setIpAddress(String ipAddress);
+  void setIpAddress(String ipAddress) throws RemoteException;
 
-  int getPortNum();
+  int getPortNum() throws RemoteException;
 
-  void setPortNum(int portNum);
+  void setPortNum(int portNum) throws RemoteException;
 
   Node getSuccessor() throws RemoteException;
 

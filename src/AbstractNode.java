@@ -1,6 +1,11 @@
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.Timestamp;
 
 import utils.P2PLogger;
 
@@ -22,15 +27,36 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
   // See getSuccessor()
   protected Node predecessor;
 
-  public AbstractNode(String ipAddress, int portNum, int id) throws RemoteException {
+//  public AbstractNode(String ipAddress, int portNum, int id) throws RemoteException {
+//    super();
+//    this.ipAddress = ipAddress;
+//    this.portNum = portNum;
+//    this.id = id;
+//    // TODO
+//    this.fingerTable = new FingerTableValue[m];
+//    this.predecessor = null;
+//    this.log = new P2PLogger("NodeLogger");
+//  }
+
+  public AbstractNode(String ipAddress, int portNum) throws RemoteException, UnsupportedEncodingException, NoSuchAlgorithmException {
     super();
     this.ipAddress = ipAddress;
     this.portNum = portNum;
-    this.id = id;
+    this.id = generateId(ipAddress, portNum);
     // TODO
+    this.m = 32;
     this.fingerTable = new FingerTableValue[m];
     this.predecessor = null;
     this.log = new P2PLogger("NodeLogger");
+  }
+
+  public int generateId(String ipAddress, int portNum) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    MessageDigest md = MessageDigest.getInstance("SHA-256"); // SHA for simple and quick hashing
+    String strToEncode = String.valueOf(ipAddress) + String.valueOf(portNum) + System.currentTimeMillis();
+    md.update(strToEncode.getBytes("UTF-8"));
+    byte[] digestBuff = md.digest();
+    BigInteger hashVal = new BigInteger(1, digestBuff);
+    return Math.abs(hashVal.intValue()) % (int) Math.pow(2, m);
   }
 
   @Override
@@ -64,6 +90,8 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
   }
 
   public Node getSuccessor() throws RemoteException {
+    System.out.println(fingerTable.length);
+    System.out.println(fingerTable[0]);
     if(fingerTable != null && fingerTable.length > 0)
       return this.fingerTable[0].getNode();
 
