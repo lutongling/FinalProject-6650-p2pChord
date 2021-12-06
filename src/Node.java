@@ -10,7 +10,7 @@ public interface Node extends Serializable, Remote {
    * @return the successor node for a given node id
    * @throws RemoteException due to connecting via RMI
    */
-  Node findSuccessor(long id) throws RemoteException;
+  Node findSuccessor(int id) throws RemoteException;
 
   /**
    * Return the predecessor node for a given node id.
@@ -18,7 +18,7 @@ public interface Node extends Serializable, Remote {
    * @return the predecessor node for a given node id
    * @throws RemoteException due to connecting via RMI
    */
-  Node findPredecessor(long id) throws RemoteException;
+  Node findPredecessor(int id) throws RemoteException;
 
   /**
    * Return the closest preceding finger of the given node id.
@@ -26,7 +26,7 @@ public interface Node extends Serializable, Remote {
    * @return the closest preceding finger of the given node id
    * @throws RemoteException due to connecting via RMI
    */
-  Node closestPrecedingFinger(long id) throws RemoteException;
+  Node closestPrecedingFinger(int id) throws RemoteException;
 
   /**
    * This is called immediately after the join to initialize data structures specifically the finger

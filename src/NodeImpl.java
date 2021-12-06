@@ -1,7 +1,6 @@
-import java.net.MalformedURLException;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.Random;
 
 public class NodeImpl extends AbstractNode {
 
@@ -10,18 +9,64 @@ public class NodeImpl extends AbstractNode {
   }
 
   @Override
-  public Node findSuccessor(long id) {
-    return null;
+  public Node findSuccessor(int id) throws RemoteException {
+    Node predecessor = findPredecessor(id);
+    Node successor = null;
+
+    try {
+      Node connected = (Node) Naming.lookup("rmi://" + predecessor.getIpAddress() + ":" + predecessor.getPortNum() + "/Node");
+      successor = connected.getSuccessor();
+      log.logInfoMessage("Successor for given node: " + id + " is node: " + successor.getId());
+    } catch (Exception e) {
+      log.logErrorMessage("Connection failed in findSuccessor." + e.getMessage());
+      // e.printStackTrace();
+    }
+
+    return successor;
   }
 
   @Override
-  public Node findPredecessor(long id) {
-    return null;
+  public Node findPredecessor(int id) throws RemoteException {
+    Node newNode = this;
+    Node nextConnectedNode = null;
+
+//    int thisId = this.id;
+//    int newNodeId = newNode.getId();
+//    int newNodeSuccessorId = newNode.getSuccessor().getId();
+
+    //  id ! << ( , ]
+    while(!inIntervalIncludeClose(id, newNode.getId(), newNode.getSuccessor().getId())){
+      if(newNode == this) {
+        // start
+        newNode = newNode.closestPrecedingFinger(id);
+      } else {
+        assert false; // if run at within this scope, nextConnectedNode should not be null.
+        newNode = nextConnectedNode.closestPrecedingFinger(id);
+      }
+
+      try {
+        nextConnectedNode = (Node) Naming.lookup("rmi://" + newNode.getIpAddress() + ":" + newNode.getPortNum() + "/Node");
+        newNode = nextConnectedNode;
+      } catch (Exception e) {
+        log.logErrorMessage("Connection failed in findPredecessor." + e.getMessage());
+        // e.printStackTrace();
+      }
+
+    }
+
+    return newNode;
   }
 
   @Override
-  public Node closestPrecedingFinger(long id) {
-    return null;
+  public Node closestPrecedingFinger(int id) {
+    for(int i = fingerTable.length - 1; i > 0; i--) {
+      Node nextNode = fingerTable[i].getNode();
+      // nextNode ( , )
+      if(inInterval(nextNode.getId(), this.id, id)) {
+        return nextNode;
+      }
+    }
+    return this;
   }
 
   @Override
@@ -29,8 +74,28 @@ public class NodeImpl extends AbstractNode {
 
   }
 
-  @Override
-  public void stabilize() {
+  public void stabilize() throws RemoteException {
+    log.logInfoMessage("Stabilizing...");
+    // not sure if we can do this directly instead of connecting since we are using the Node reference
+    // Node x = this.getSuccessor().getPredecessor();
+    Node successor = this.getSuccessor();
+    Node x = null;
+
+    try {
+      Node connected = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/Node");
+      x = connected.getPredecessor();
+    } catch (Exception e) {
+      log.logErrorMessage("Connection failed in stabilize." + e.getMessage());
+      // e.printStackTrace();
+    }
+
+    // x >>> ( , )
+    if(x != null && inInterval(x.getId(), this.id, successor.getId())) {
+      successor = x;
+    }
+
+    // Not sure if this should be done by reconnecting to x?
+    successor.notify();
 
   }
 
@@ -45,15 +110,26 @@ public class NodeImpl extends AbstractNode {
     return x == open || inInterval(x, open, close);
   }
 
-  @Override
-  public void fixFingers() {
+  // According to the paper, this is called by some function such as init_finger_table
+  private boolean inIntervalIncludeClose(int x, int open, int close){
+    return x == close || inInterval(x, open, close);
+  }
 
+  @Override
+  public void fixFingers() throws RemoteException {
+    log.logInfoMessage("Fixing fingers...");
+
+    Random rand = new Random();
+    int randomIdx = rand.nextInt(m - 1) + 2;
+
+    this.fingerTable[randomIdx].setNode(this.findSuccessor(this.fingerTable[randomIdx].getStart()));
   }
 
   @Override
   public void notify(Node node) {
     // TODO BE called in stabilization
-    if (this.predecessor == null || (node.getId() < this.id && node.getId() > this.predecessor.getId())) {
+    // (node.getId() < this.id && node.getId() > this.predecessor.getId())
+    if (this.predecessor == null ||  this.inInterval(this.id, node.getId(), this.predecessor.getId())) {
       this.predecessor = node;
     }
   }
