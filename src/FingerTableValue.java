@@ -1,7 +1,7 @@
 public class FingerTableValue {
 
-  int start;
-  Node successor;
+  private int start;
+  private Node successor;
 
   /**
    * Dummy constructor.

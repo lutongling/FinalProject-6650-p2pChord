@@ -61,7 +61,7 @@ public class NodeImpl extends AbstractNode {
       int i;
 
       for(i = 1; i < fingerTable.size(); i++) {
-        tempPeer = fingerTable.get((long) i).successor;
+        tempPeer = fingerTable.get((long) i).getSuccessor();
         // in a loop iterating over its successors
         assert successor != null;
         if(tempPeer.getId() != successor.getId() && tempPeer.getId() != this.id)
@@ -99,10 +99,55 @@ public class NodeImpl extends AbstractNode {
           // a boot node is a very first node joining the network
           // it represents at least on existing node
         }
+
+        // not founding someone failed
+      } else {
+        // TODO: need to discuss: bootstrap class operation
       }
 
-    }
+    } else {
+      // successorFound != null
+      // Current successor is alive
+      Node x = null;
+      try {
+        x = successorFound.getPredecessor();
+      } catch (RemoteException e) {
+        log.logErrorMessage("Error");
+        // e.printStackTrace();
+      }
 
+      if((x != null)
+              && (inCircularInterval(x.getId(), this.id, this.fingerTable.get(0L).getSuccessor().getId()))) {
+        this.fingerTable.get(0L).setSuccessor(x);
+      }
+
+      try {
+        if(successor.getId() == this.id) {
+          successorFound.notify(this);
+        }
+      } catch (RemoteException e) {
+        // e.printStackTrace();
+        log.logErrorMessage("Error in calling notify from the successor found");
+      }
+    }
+  }
+
+  // helper
+  private boolean inCircularInterval(long x, long a, long b) {
+    boolean val = false;
+    if (a == b)
+      val = true;
+    else if (a < b) {// normal range
+      if ((x > a) && (x < b))
+        val = true;
+    } else { // when on one current node is after 0 but predecessor is before 0
+      if ((x > a) && (x < (b + Math.pow(2, m)))) {// in ring before 0
+        val = true;
+      } else if ((x < b) && ((x + Math.pow(2, m)) > a)) {// in ring after 0
+        val = true;
+      }
+    }
+    return val;
   }
 
   @Override
