@@ -1,3 +1,4 @@
+import java.rmi.Naming;
 import java.rmi.RemoteException;
 
 public class NodeImpl extends AbstractNode {
@@ -7,18 +8,52 @@ public class NodeImpl extends AbstractNode {
   }
 
   @Override
-  public Node findSuccessor(int id) {
-    return null;
+  public Node findSuccessor(int id) throws RemoteException {
+    return findPredecessor(id);
   }
 
   @Override
-  public Node findPredecessor(int id) {
-    return null;
+  public Node findPredecessor(int id) throws RemoteException {
+    Node newNode = this;
+    Node nextConnectedNode = null;
+
+//    int thisId = this.id;
+//    int newNodeId = newNode.getId();
+//    int newNodeSuccessorId = newNode.getSuccessor().getId();
+
+    //  id ! << ( , ]
+    while(!inIntervalIncludeClose(id, newNode.getId(), newNode.getSuccessor().getId())){
+      if(newNode == this) {
+        // start
+        newNode = newNode.closestPrecedingFinger(id);
+      } else {
+        assert false; // if run at within this scope, nextConnectedNode should not be null.
+        newNode = nextConnectedNode.closestPrecedingFinger(id);
+      }
+
+      try {
+        nextConnectedNode = (Node) Naming.lookup("rmi://" + newNode.getIpAddress() + ":" + newNode.getPortNum() + "/Node");
+        newNode = nextConnectedNode;
+      } catch (Exception e) {
+        log.logErrorMessage("Connection failed in findPredecessor." + e.getMessage());
+        // e.printStackTrace();
+      }
+
+    }
+
+    return newNode;
   }
 
   @Override
   public Node closestPrecedingFinger(int id) {
-    return null;
+    for(int i = fingerTable.length - 1; i > 0; i--) {
+      Node nextNode = fingerTable[i].getNode();
+      // nextNode ( , )
+      if(inInterval(nextNode.getId(), this.id, id)) {
+        return nextNode;
+      }
+    }
+    return this;
   }
 
   @Override
@@ -139,6 +174,11 @@ public class NodeImpl extends AbstractNode {
 
   private boolean inIntervalIncludeOpen(int x, int open, int close){
     return x == open || inInterval(x, open, close);
+  }
+
+  // According to the paper, this is called by some function such as init_finger_table
+  private boolean inIntervalIncludeClose(int x, int open, int close){
+    return x == close || inInterval(x, open, close);
   }
 
   @Override

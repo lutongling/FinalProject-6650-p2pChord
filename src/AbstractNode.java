@@ -7,6 +7,7 @@ import utils.P2PLogger;
 public abstract class AbstractNode extends UnicastRemoteObject implements Node, Serializable {
   private static final long serialVersionUID = 1L;
 
+  // m-bit [finger table size]
   protected int m;
   protected int id;
   protected String ipAddress;
@@ -15,10 +16,10 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
   protected FingerTableValue[] fingerTable;
   protected P2PLogger log;
 
+
   // This successor field is not needed, it can be accessed by using first element fingerTable
   // protected Node successor;
   // See getSuccessor()
-
   protected Node predecessor;
 
   public AbstractNode(String ipAddress, int portNum, int id) throws RemoteException {
@@ -31,7 +32,6 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
     this.predecessor = null;
     this.log = new P2PLogger("NodeLogger");
   }
-
 
   @Override
   public int getId() {
@@ -81,7 +81,6 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
   public void setPredecessor(Node node) {
     this.predecessor = node;
   }
-
 
 
 }
