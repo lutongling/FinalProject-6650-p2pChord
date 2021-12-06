@@ -28,7 +28,7 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
     this.portNum = portNum;
     this.id = id;
     // TODO
-    this.fingerTable = null;
+    this.fingerTable = new FingerTableValue[m];
     this.predecessor = null;
     this.log = new P2PLogger("NodeLogger");
   }

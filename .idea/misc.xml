@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+<<<<<<< HEAD
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_15" default="true" project-jdk-name="15" project-jdk-type="JavaSDK">
+=======
+<<<<<<< HEAD
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="ES6" />
+=======
   <component name="ProjectRootManager" version="2" languageLevel="JDK_13" default="true" project-jdk-name="15" project-jdk-type="JavaSDK">
+>>>>>>> origin/zhouzhixuan
     <output url="file://$PROJECT_DIR$/out" />
+>>>>>>> 931235ed078a8ad3905b119edb1166a4e08bf206
   </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
 </project>

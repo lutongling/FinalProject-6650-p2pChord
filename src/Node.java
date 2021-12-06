@@ -58,7 +58,7 @@ public interface Node extends Serializable, Remote {
   // Zhixuan
   void updateOthers() throws RemoteException;
 
-  void updateFingerTable() throws RemoteException;
+  void updateFingerTable(Node s, int i);
 
   // getters and setters
 
@@ -81,8 +81,5 @@ public interface Node extends Serializable, Remote {
   Node getPredecessor() throws RemoteException;
 
   void setPredecessor(Node node) throws RemoteException;
-
-
-
 
 }
