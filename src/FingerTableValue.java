@@ -1,12 +1,30 @@
 public class FingerTableValue {
-  protected long start;
-  protected Node node;
+  private int start;
+  private Node node;
 
-  public long getStart() {
+  /**
+   * Dummy constructor.
+   */
+  public FingerTableValue() {
+    this.start = 0;
+    this.node = null;
+  }
+
+  /**
+   * Construct a finger table value, which is the information the finger table maintains.
+   * @param start The start value for each finger table value
+   * @param node The immediate next node on the identifier circle(i.e. the first finger)
+   */
+  public FingerTableValue(int start, Node node) {
+    this.start = start;
+    this.node = node;
+  }
+
+  public int getStart() {
     return start;
   }
 
-  public void setStart(long start) {
+  public void setStart(int start) {
     this.start = start;
   }
 
@@ -17,4 +35,5 @@ public class FingerTableValue {
   public void setNode(Node node) {
     this.node = node;
   }
+
 }
