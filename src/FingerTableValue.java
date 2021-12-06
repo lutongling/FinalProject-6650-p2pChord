@@ -1,14 +1,14 @@
 public class FingerTableValue {
 
   private int start;
-  private Node successor;
+  private Node node;
 
   /**
    * Dummy constructor.
    */
   public FingerTableValue() {
     this.start = 0;
-    this.successor = null;
+    this.node = null;
   }
 
   /**
@@ -18,7 +18,7 @@ public class FingerTableValue {
    */
   public FingerTableValue(int start, Node successor) {
     this.start = start;
-    this.successor = successor;
+    this.node = successor;
   }
 
   public int getStart() {
@@ -29,12 +29,12 @@ public class FingerTableValue {
     this.start = start;
   }
 
-  public Node getSuccessor() {
-    return successor;
+  public Node getNode() {
+    return node;
   }
 
-  public void setSuccessor(Node successor) {
-    this.successor = successor;
+  public void setNode(Node node) {
+    this.node = node;
   }
 
 
