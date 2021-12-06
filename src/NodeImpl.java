@@ -61,7 +61,7 @@ public class NodeImpl extends AbstractNode {
       int i;
 
       for(i = 1; i < fingerTable.size(); i++) {
-        tempPeer = fingerTable.get((long) i).successor;
+        tempPeer = fingerTable.get((long) i).getSuccessor();
         // in a loop iterating over its successors
         assert successor != null;
         if(tempPeer.getId() != successor.getId() && tempPeer.getId() != this.id)
@@ -113,20 +113,19 @@ public class NodeImpl extends AbstractNode {
   @Override
   public void notify(Node node) {
     // TODO BE called in stabilization
-
+    if (this.predecessor == null || (node.getId() < this.id && node.getId() > this.predecessor.getId())) {
+      this.predecessor = node;
+    }
 
   }
 
   @Override
   public void join(Node node) {
-    if (node != null) {
-      // current node is the only node in the network
-      this.initFingerTable(node);
-      this.updateOthers();
-    } else {
-      for (int i = 1; i <= this.m; i++) {
-
-      }
+   this.predecessor = null;
+    try {
+      this.setSuccessor(node.findSuccessor(this.getId()));
+    } catch (RemoteException e) {
+      e.printStackTrace();
     }
   }
 
