@@ -125,6 +125,7 @@ public class NodeImpl extends AbstractNode {
     try {
       this.setSuccessor(node.findSuccessor(this.getId()));
     } catch (RemoteException e) {
+      // todo: throw? catch? and log
       e.printStackTrace();
     }
   }
