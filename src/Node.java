@@ -1,30 +1,86 @@
 import java.io.Serializable;
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 public interface Node extends Serializable, Remote {
 
-  Node findSuccessor(long id);
+  /**
+   * Return the successor node for a given node id.
+   * @param id of the given node
+   * @return the successor node for a given node id
+   * @throws RemoteException due to connecting via RMI
+   */
+  Node findSuccessor(long id) throws RemoteException;
 
-  Node findPredecessor(long id);
+  /**
+   * Return the predecessor node for a given node id.
+   * @param id of the given node
+   * @return the predecessor node for a given node id
+   * @throws RemoteException due to connecting via RMI
+   */
+  Node findPredecessor(long id) throws RemoteException;
 
-  Node closestPrecedingFinger(long id);
+  /**
+   * Return the closest preceding finger of the given node id.
+   * @param id of the given node
+   * @return the closest preceding finger of the given node id
+   * @throws RemoteException due to connecting via RMI
+   */
+  Node closestPrecedingFinger(long id) throws RemoteException;
 
-  void initFingerTable(Node node);
+  /**
+   * This is called immediately after the join to initialize data structures specifically the finger
+   * table entries to assist in routing.
+   * @param node
+   * @throws RemoteException
+   */
+  void initFingerTable(Node node) throws RemoteException;
 
-  // Tonglingling
-  void stabilize();
 
-  void fixFingers();
+  /**
+   * The stabilize function is used to periodically verify the current nodes immediate successor and
+   * tell the successor about itself
+   * @throws RemoteException
+   */
+  void stabilize() throws RemoteException;
+
+  /**
+   * This function is used to periodically refresh finger table entries
+   * @throws RemoteException
+   */
+  void fixFingers() throws RemoteException;
 
   // Yifan
-  void notify(Node node);
+  void notify(Node node) throws RemoteException;
 
-  void join(Node node);
+  void join(Node node) throws RemoteException;
 
   // Zhixuan
-  void updateOthers();
+  void updateOthers() throws RemoteException;
 
-  void updateFingerTable();
+  void updateFingerTable() throws RemoteException;
+
+  // getters and setters
+
+  long getId();
+
+  void setId(long id);
+
+  String getIpAddress();
+
+  void setIpAddress(String ipAddress);
+
+  int getPortNum();
+
+  void setPortNum(int portNum);
+
+  Node getSuccessor() throws RemoteException;
+
+  void setSuccessor(Node node) throws RemoteException;
+
+  Node getPredecessor() throws RemoteException;
+
+  void setPredecessor(Node node) throws RemoteException;
 
 
 
