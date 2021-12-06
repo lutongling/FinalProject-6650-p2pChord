@@ -9,7 +9,19 @@ public class NodeImpl extends AbstractNode {
 
   @Override
   public Node findSuccessor(int id) throws RemoteException {
-    return findPredecessor(id);
+    Node predecessor = findPredecessor(id);
+    Node successor = null;
+
+    try {
+      Node connected = (Node) Naming.lookup("rmi://" + predecessor.getIpAddress() + ":" + predecessor.getPortNum() + "/Node");
+      successor = connected.getSuccessor();
+      log.logInfoMessage("Successor for given node: " + id + " is node: " + successor.getId());
+    } catch (Exception e) {
+      log.logErrorMessage("Connection failed in findSuccessor." + e.getMessage());
+      // e.printStackTrace();
+    }
+
+    return successor;
   }
 
   @Override
