@@ -11,10 +11,11 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
 
   protected int m;
 
-  protected long id;
+  protected int id;
   protected String ipAddress;
   protected int portNum;
-  protected Map<Long, FingerTableValue> fingerTable;
+
+  protected FingerTableValue[] fingerTable;
   protected P2PLogger log;
 
   // This successor field is not needed, it can be accessed by using first element fingerTable
@@ -28,7 +29,8 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
     this.ipAddress = ipAddress;
     this.portNum = portNum;
     this.id = id;
-    this.fingerTable = new HashMap<>();
+    // TODO
+    this.fingerTable = null;
     this.predecessor = null;
     this.log = new P2PLogger("NodeLogger");
   }
@@ -40,12 +42,12 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
   */
 
   @Override
-  public long getId() {
+  public int getId() {
     return id;
   }
 
   @Override
-  public void setId(long id) {
+  public void setId(int id) {
     this.id = id;
   }
 
@@ -89,14 +91,14 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
 */
 
   public Node getSuccessor() {
-    if(fingerTable != null && fingerTable.size() > 0)
-      return this.fingerTable.get(0L).getSuccessor();
+    if(fingerTable != null && fingerTable.length > 0)
+      return this.fingerTable[0].getNode();
 
     return null;
   }
 
   public void setSuccessor(Node node) {
-    this.fingerTable.get(0L).setSuccessor(node);
+    this.fingerTable[0].setNode(node);
   }
 
   public Node getPredecessor() {

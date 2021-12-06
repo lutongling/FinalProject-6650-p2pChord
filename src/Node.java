@@ -62,9 +62,9 @@ public interface Node extends Serializable, Remote {
 
   // getters and setters
 
-  long getId();
+  int getId();
 
-  void setId(long id);
+  void setId(int id);
 
   String getIpAddress();
 
