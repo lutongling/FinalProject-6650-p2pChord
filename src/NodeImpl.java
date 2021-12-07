@@ -7,9 +7,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.util.logging.Level;
+import java.util.concurrent.ExecutionException;
 
 public class NodeImpl extends AbstractNode {
 
@@ -23,12 +21,12 @@ public class NodeImpl extends AbstractNode {
     Node successor = null;
 
     try {
-      Node connected = (Node) Naming.lookup("rmi://" + predecessor.getIpAddress() + ":" + predecessor.getPortNum() + "/Node");
-      successor = connected.getSuccessor();
-      log.logInfoMessage("Successor for given node: " + id + " is node: " + successor.getId());
+      predecessor = (Node) Naming.lookup("rmi://" + predecessor.getIpAddress() + ":" + predecessor.getPortNum() + "/Node");
+      successor = predecessor.getSuccessor();
+      // log.logInfoMessage("Successor for given node: " + id + " is node: " + successor.getId());
     } catch (Exception e) {
-      log.logErrorMessage("Connection failed in findSuccessor." + e.getMessage());
-      // e.printStackTrace();
+      // log.logErrorMessage("Connection failed in findSuccessor." + e.getMessage());
+      e.printStackTrace();
     }
 
     return successor;
@@ -37,29 +35,65 @@ public class NodeImpl extends AbstractNode {
   @Override
   public Node findPredecessor(int id) throws RemoteException {
     Node newNode = this;
-    Node nextConnectedNode = null;
-
+//    Node nextConnectedNode = null;
 //    int thisId = this.id;
 //    int newNodeId = newNode.getId();
 //    int newNodeSuccessorId = newNode.getSuccessor().getId();
 
     //  id ! << ( , ]
-    while(!inIntervalIncludeClose(id, newNode.getId(), newNode.getSuccessor().getId())){
+    int newNodeId = newNode.getId();
+    int newNodeSuccessorId = newNode.getSuccessor().getId();
+
+    while(!inIntervalIncludeClose(id, newNodeId, newNodeSuccessorId)){
+
       if(newNode == this) {
         // start
-        newNode = newNode.closestPrecedingFinger(id);
+          newNode = newNode.closestPrecedingFinger(id);
+//        newNode = newNode.getPredecessor();
       } else {
-        assert false; // if run at within this scope, nextConnectedNode should not be null.
-        newNode = nextConnectedNode.closestPrecedingFinger(id);
+//        assert false; // if run at within this scope, nextConnectedNode should not be null.
+
+        try {
+          System.out.println("57: " + newNode.getPortNum());
+
+          newNode = (Node) Naming.lookup("rmi://" + newNode.getIpAddress() + ":" + newNode.getPortNum() + "/Node");
+
+          System.out.println("61: " + newNode.getPortNum());
+
+          newNode = newNode.closestPrecedingFinger(id);
+
+          System.out.println("65: " + newNode.getPortNum());
+
+          newNode = (Node) Naming.lookup("rmi://" + newNode.getIpAddress() + ":" + newNode.getPortNum() + "/Node");
+
+          System.out.println("69: " + newNode.getPortNum());
+
+          newNodeId = newNode.getId();
+          newNodeSuccessorId = newNode.getSuccessor().getId();
+
+          // newNode = nextConnectedNode;
+        } catch (Exception e) {
+          // log.logErrorMessage("Connection failed in findPredecessor." + e.getMessage());
+          e.printStackTrace();
+
+//          try {
+//            log.logInfoMessage("Reconnecting with 1112...");
+//            newNode = (Node) Naming.lookup("rmi://localhost" + ":1112" + "/Node");
+//          } catch (Exception e1) {
+//            log.logErrorMessage("1112 down --- " + e1.getMessage());
+//          }
+
+        }
+
       }
 
-      try {
-        nextConnectedNode = (Node) Naming.lookup("rmi://" + newNode.getIpAddress() + ":" + newNode.getPortNum() + "/Node");
-        newNode = nextConnectedNode;
-      } catch (Exception e) {
-        log.logErrorMessage("Connection failed in findPredecessor." + e.getMessage());
-        // e.printStackTrace();
-      }
+//      try {
+//        newNode = (Node) Naming.lookup("rmi://" + newNode.getIpAddress() + ":" + newNode.getPortNum() + "/Node");
+//        // newNode = nextConnectedNode;
+//      } catch (Exception e) {
+//        // log.logErrorMessage("Connection failed in findPredecessor." + e.getMessage());
+//        e.printStackTrace();
+//      }
 
     }
 
@@ -68,13 +102,22 @@ public class NodeImpl extends AbstractNode {
 
   @Override
   public Node closestPrecedingFinger(int id) throws RemoteException {
-    for(int i = fingerTable.length - 1; i > 0; i--) {
+//    for(int i = fingerTable.length - 1; i > 0; i--) {
+//      Node nextNode = fingerTable[i].getNode();
+//      // nextNode ( , )
+//      if(inInterval(nextNode.getId(), this.id, id)) {
+//        return nextNode;
+//      }
+//    }
+
+    for(int i = m; i > 0; i--) {
       Node nextNode = fingerTable[i].getNode();
       // nextNode ( , )
       if(inInterval(nextNode.getId(), this.id, id)) {
         return nextNode;
       }
     }
+
     return this;
   }
 
@@ -92,6 +135,7 @@ public class NodeImpl extends AbstractNode {
       this.getSuccessor().setPredecessor(this); // "this" is n  // this.getSuccessor().predecessor = this;
     } catch (Exception e) {
       log.logErrorMessage("Can't get predecessor in initFingerTable: " + e.getMessage());
+      e.printStackTrace();
     }
 
     for(int i=1; i<=m-1; i++) {
@@ -118,32 +162,47 @@ public class NodeImpl extends AbstractNode {
     Node x = null;
 
     try {
-      Node connected = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/Node");
-      x = connected.getPredecessor();
+      successor = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/Node");
+      x = successor.getPredecessor();
       log.logInfoMessage("Predecessor: " + x.getId());
     } catch (Exception e) {
+
       log.logErrorMessage("Connection failed in stabilize." + e.getMessage());
-      // e.printStackTrace();
+
+      try {
+        Thread.sleep(5000);
+        log.logInfoMessage("Reconnecting with this...");
+        successor = this;
+        x = successor.getPredecessor();
+
+      } catch (Exception e1) {
+        log.logErrorMessage("Impossible" + e1.getMessage());
+      }
+
     }
 
     // x >>> ( , )
     if(x != null && inInterval(x.getId(), this.id, successor.getId())) {
-      successor = x;
+//      successor = x;
+      this.setSuccessor(x);
     }
 
     // Not sure if this should be done by reconnecting to x?
     try {
       successor = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/Node");
-      successor.notify();
+      System.out.println("135: " + successor.getPortNum());
+
+      successor.notifyNode(this);
+
+      System.out.println("139: " + this.predecessor);
+
       log.logInfoMessage("Successor: " + successor.getId());
     } catch (Exception e) {
       log.logErrorMessage("Connection failed for successor cin stabilize." + e.getMessage());
       // e.printStackTrace();
     }
 
-
-
-    this.printFingerTable(this.fingerTable);
+    // this.printFingerTable(this.fingerTable);
 
   }
 
@@ -164,40 +223,49 @@ public class NodeImpl extends AbstractNode {
   }
 
   // helper to print finger table
-  private void printFingerTable(FingerTableValue[] fingerTable) throws RemoteException {
-    for(int i = 0; i < fingerTable.length; i++) {
-      log.logInfoMessage("Start for " + i + " " + fingerTable[i].getStart());
-      log.logInfoMessage("Node ip address " + fingerTable[i].getNode().getIpAddress());
-      log.logInfoMessage("Node port address " + fingerTable[i].getNode().getPortNum());
-      log.logInfoMessage("Node id " + fingerTable[i].getNode().getId());
-    }
-  }
+//  private void printFingerTable(FingerTableValue[] fingerTable) throws RemoteException {
+//    for(int i = 1; i < fingerTable.length; i++) {
+//      // Node fingerTableNode = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/Node");
+//      log.logInfoMessage("Start for " + i + " " + fingerTable[i].getStart());
+//      log.logInfoMessage("Node ip address " + fingerTable[i].getNode().getIpAddress());
+//      log.logInfoMessage("Node port address " + fingerTable[i].getNode().getPortNum());
+//      log.logInfoMessage("Node id " + fingerTable[i].getNode().getId());
+//    }
+//  }
 
   @Override
   public void fixFingers() throws RemoteException {
     log.logInfoMessage("Fixing fingers...");
 
     Random rand = new Random();
+    // randomIdx >> [2, 32] int
     int randomIdx = rand.nextInt(m - 1) + 2;
+    System.out.println("RandomIdx: " + randomIdx);
 
     this.fingerTable[randomIdx].setNode(this.findSuccessor(this.fingerTable[randomIdx].getStart()));
 
-    log.logInfoMessage("Predecessor: " + this.predecessor.getId());
+    System.out.println("189: " + this.getPredecessor());
+
+    log.logInfoMessage("Predecessor: " + this.getPredecessor().getId());
 
     log.logInfoMessage("Successor: " + this.getSuccessor().getId());
 
-    this.printFingerTable(this.fingerTable);
+    // this.printFingerTable(this.fingerTable);
 
   }
 
   @Override
-  public void notify(Node node) throws RemoteException {
+  public void notifyNode(Node node) throws RemoteException {
     // TODO BE called in stabilization
 
     // (node.getId() < this.id && node.getId() > this.predecessor.getId())
-    if (this.predecessor == null ||  this.inInterval(this.id, node.getId(), this.predecessor.getId())) {
-      this.predecessor = node;
+    //if (this.predecessor == null ||  this.inInterval(this.id, node.getId(), this.predecessor.getId())) {
+    if (this.predecessor == null ||  this.inInterval(node.getId(), this.predecessor.getId(), this.id)) {
+      this.setPredecessor(node);
+      System.out.println("205: " + this.predecessor);
     }
+
+    System.out.println("208: notify success");
 
   }
 
@@ -280,12 +348,11 @@ public class NodeImpl extends AbstractNode {
 
   public void createFingerTable() throws RemoteException {
 //    AbstractNode absNode = (AbstractNode) node;
-
     int i;
-    for (i = 1; i < m; i++) {
+    for (i = 1; i <= m; i++) {
       int start = (this.getId() + (int) Math.pow(2, i - 1)) % (int) Math.pow(2, m);
       FingerTableValue fte = new FingerTableValue(start, this);
-      this.fingerTable[i - 1] = fte;
+      this.fingerTable[i] = fte;
     }
 
   }
@@ -334,21 +401,38 @@ public class NodeImpl extends AbstractNode {
       newNode.join(nodeInChord);
       nodeInChord.echo(newNode);
 
-      while(true) {
-        newNode.stabilize();
-        newNode.fixFingers();
+      Runnable run = new Runnable() {
+        @Override
+        public void run() {
+          while(true) {
+            try {
+              newNode.stabilize();
+              newNode.fixFingers();
 
-        Thread.sleep(5000);
-      }
+              System.out.println("Thread done");
+
+              Thread.sleep(10000);
+            } catch (Exception e) {
+              System.out.println(e.getMessage());
+              e.printStackTrace();
+            }
+
+          }
+        }
+      };
+
+      new Thread(run).start();
+
+//      while(true) {
+//        newNode.stabilize();
+//        newNode.fixFingers();
+//
+//        Thread.sleep(1000);
+//      }
 
     }
 
-//    new Runnable() {
-//      @Override
-//      public void run() {
-//        while()
-//      }
-//    }
+
 
   }
 }

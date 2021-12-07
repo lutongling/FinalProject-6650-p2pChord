@@ -51,7 +51,7 @@ public interface Node extends Serializable, Remote {
   void fixFingers() throws RemoteException;
 
   // Yifan
-  void notify(Node node) throws RemoteException;
+  void notifyNode(Node node) throws RemoteException;
 
   void join(Node node) throws RemoteException;
 

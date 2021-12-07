@@ -45,7 +45,7 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
     this.id = generateId(ipAddress, portNum);
     // TODO
     this.m = 32;
-    this.fingerTable = new FingerTableValue[m];
+    this.fingerTable = new FingerTableValue[m+1];
     this.predecessor = null;
     this.log = new P2PLogger("NodeLogger");
   }
@@ -90,16 +90,16 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
   }
 
   public Node getSuccessor() throws RemoteException {
-    System.out.println(fingerTable.length);
-    System.out.println(fingerTable[0]);
+//    System.out.println(fingerTable.length);
+//    System.out.println(fingerTable[0]);
     if(fingerTable != null && fingerTable.length > 0)
-      return this.fingerTable[0].getNode();
+      return this.fingerTable[1].getNode();
 
     return null;
   }
 
   public void setSuccessor(Node node) throws RemoteException {
-    this.fingerTable[0].setNode(node);
+    this.fingerTable[1].setNode(node);
   }
 
   public Node getPredecessor() throws RemoteException {
