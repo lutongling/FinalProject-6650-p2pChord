@@ -1,6 +1,7 @@
 import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Map;
 
 public interface Node extends Serializable, Remote {
 
@@ -86,4 +87,7 @@ public interface Node extends Serializable, Remote {
 
   void setPredecessor(Node node) throws RemoteException;
 
+  String getFromStorage(String key) throws RemoteException;
+  void putToStorage(String key, String value) throws RemoteException;
+  void consistentStore() throws RemoteException;
 }

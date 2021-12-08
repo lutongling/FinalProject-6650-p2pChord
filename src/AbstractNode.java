@@ -14,6 +14,7 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
 
   // m-bit [finger table size]
   protected int m;
+  protected static int staticM;
   protected int id;
   protected String ipAddress;
   protected int portNum;
@@ -45,6 +46,7 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
     this.id = generateId(ipAddress, portNum);
     // TODO
     this.m = 32;
+    staticM = this.m;
     this.fingerTable = new FingerTableValue[m+1];
     this.predecessor = null;
     this.log = new P2PLogger("NodeLogger");

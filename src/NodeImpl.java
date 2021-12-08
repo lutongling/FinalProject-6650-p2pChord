@@ -1,18 +1,29 @@
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
+import utils.P2PLogger;
+
 public class NodeImpl extends AbstractNode {
+  // This variable is used to hold this server's key-value pair from input.
+  private Map<String, String> mapOfThisServer;
 
   protected NodeImpl(String ipAddress, int portNum) throws RemoteException, UnsupportedEncodingException, NoSuchAlgorithmException {
     super(ipAddress, portNum);
+    mapOfThisServer = new HashMap<>();
   }
 
   @Override
@@ -54,19 +65,19 @@ public class NodeImpl extends AbstractNode {
 //        assert false; // if run at within this scope, nextConnectedNode should not be null.
 
         try {
-          System.out.println("57: " + newNode.getPortNum());
+//          System.out.println("57: " + newNode.getPortNum());
 
           newNode = (Node) Naming.lookup("rmi://" + newNode.getIpAddress() + ":" + newNode.getPortNum() + "/Node");
 
-          System.out.println("61: " + newNode.getPortNum());
+//          System.out.println("61: " + newNode.getPortNum());
 
           newNode = newNode.closestPrecedingFinger(id);
 
-          System.out.println("65: " + newNode.getPortNum());
+//          System.out.println("65: " + newNode.getPortNum());
 
           newNode = (Node) Naming.lookup("rmi://" + newNode.getIpAddress() + ":" + newNode.getPortNum() + "/Node");
 
-          System.out.println("69: " + newNode.getPortNum());
+//          System.out.println("69: " + newNode.getPortNum());
 
           newNodeId = newNode.getId();
           newNodeSuccessorId = newNode.getSuccessor().getId();
@@ -172,9 +183,7 @@ public class NodeImpl extends AbstractNode {
       try {
         Thread.sleep(5000);
         log.logInfoMessage("Reconnecting with this...");
-        successor = this;
-        x = successor.getPredecessor();
-
+        x = this;
       } catch (Exception e1) {
         log.logErrorMessage("Impossible" + e1.getMessage());
       }
@@ -190,11 +199,11 @@ public class NodeImpl extends AbstractNode {
     // Not sure if this should be done by reconnecting to x?
     try {
       successor = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/Node");
-      System.out.println("135: " + successor.getPortNum());
+//      System.out.println("135: " + successor.getPortNum());
 
       successor.notifyNode(this);
 
-      System.out.println("139: " + this.predecessor);
+//      System.out.println("139: " + this.predecessor);
 
       log.logInfoMessage("Successor: " + successor.getId());
     } catch (Exception e) {
@@ -240,11 +249,11 @@ public class NodeImpl extends AbstractNode {
     Random rand = new Random();
     // randomIdx >> [2, 32] int
     int randomIdx = rand.nextInt(m - 1) + 2;
-    System.out.println("RandomIdx: " + randomIdx);
+//    System.out.println("RandomIdx: " + randomIdx);
 
     this.fingerTable[randomIdx].setNode(this.findSuccessor(this.fingerTable[randomIdx].getStart()));
 
-    System.out.println("189: " + this.getPredecessor());
+//    System.out.println("189: " + this.getPredecessor());
 
     log.logInfoMessage("Predecessor: " + this.getPredecessor().getId());
 
@@ -262,10 +271,10 @@ public class NodeImpl extends AbstractNode {
     //if (this.predecessor == null ||  this.inInterval(this.id, node.getId(), this.predecessor.getId())) {
     if (this.predecessor == null ||  this.inInterval(node.getId(), this.predecessor.getId(), this.id)) {
       this.setPredecessor(node);
-      System.out.println("205: " + this.predecessor);
+//      System.out.println("205: " + this.predecessor);
     }
 
-    System.out.println("208: notify success");
+//    System.out.println("208: notify success");
 
   }
 
@@ -409,9 +418,9 @@ public class NodeImpl extends AbstractNode {
               newNode.stabilize();
               newNode.fixFingers();
 
-              System.out.println("Thread done");
+//              System.out.println("Thread done");
 
-              Thread.sleep(10000);
+              Thread.sleep(20000);
             } catch (Exception e) {
               System.out.println(e.getMessage());
               e.printStackTrace();
@@ -423,16 +432,133 @@ public class NodeImpl extends AbstractNode {
 
       new Thread(run).start();
 
-//      while(true) {
-//        newNode.stabilize();
-//        newNode.fixFingers();
-//
-//        Thread.sleep(1000);
-//      }
 
+
+      Runnable storageThread = new Runnable() {
+        @Override
+        public void run() {
+          try{
+            newNode.consistentStore();
+          } catch (Exception e){
+            e.printStackTrace();
+          }
+
+        }
+      };
+      new Thread(storageThread).start();
     }
 
 
-
   }
+
+  @Override
+  public void consistentStore() {
+    P2PLogger log =  new P2PLogger("NodeStorageLogger");
+    while(true) {
+      try {
+        // this function is used to call findSuccessor.
+        // we can also make methods static and call them directly.
+//              Node functionCaller = (Node) Naming.lookup("rmi://" + newNodeIpAddress
+//                      + ":" + newNodePort + "/Node");  // we can use random node
+        Node functionCaller = this;
+        // here we know newNode (itself) must be alive and in chord.
+        System.out.println("Please enter text here: ");
+        Scanner keyboard = new Scanner(System.in);
+        String commandLine;
+        while ((commandLine = keyboard.nextLine()) != null) {
+          try {
+            // In NodeImpl we need to check if the current server is the destination.
+            // Note! inputCommand has format: "GET$$$KEY" or "PUT$$$KEY$$$VALUE"
+
+            // get the key and value from the cmd line, generate the id of the input
+            // check if the operation is PUT, DELETE or GET
+            //  if it's GET:
+            //    if so: return the value
+            //     else: get the value from another server by calling rmi method
+            //  if it's not GET:
+            //    if so: put or delete the value
+            //     else: call another server using rmi to modify the map
+            String[] inputArgs = commandLine.split("\\$\\$\\$");
+            System.out.println(commandLine+"  ,  "+Arrays.toString(inputArgs));
+            String operation = toUpperCase(inputArgs[0]);
+            String key = inputArgs[1];
+            int keyId = generateIdUsingKey(key);
+            if(operation.equals("GET")) {
+              // no value in get.
+              Node successor = functionCaller.findSuccessor(keyId);
+              successor = (Node) Naming.lookup("rmi://" + successor.getIpAddress()
+                      + ":" + successor.getPortNum() + "/Node");
+              String value = successor.getFromStorage(key);
+              log.logInfoMessage("GET value: " + value);
+            } else {
+              // operation == PUT or DELETE.
+              String value = inputArgs[2];
+
+              Node successor = functionCaller.findSuccessor(keyId);
+              successor = (Node) Naming.lookup("rmi://" + successor.getIpAddress()
+                      + ":" + successor.getPortNum() + "/Node");
+              successor.putToStorage(key, value);
+              log.logInfoMessage(operation + " is done successfully" );
+            }
+            // don't forget to rmi to others.
+
+          } catch (Exception e) {
+            log.logErrorMessage( "No response from the server, will send " +
+                    "next request after 5 sec. Err message is: " + e.getMessage()  );
+            e.printStackTrace();
+            Thread.sleep(5000);
+          }
+        }
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+        e.printStackTrace();
+      }
+
+    }
+  }
+
+  @Override
+  public String getFromStorage(String key) throws RemoteException {
+    String value = mapOfThisServer.get(key);
+    log.logInfoMessage1("GET in this server: key: " +key+" value: " + value);
+    log.logInfoMessage1("current address: " + ipAddress + " , port: " + portNum);
+    return value;
+  }
+
+  @Override
+  public void putToStorage(String key, String value) throws RemoteException {
+    mapOfThisServer.put(key, value);
+    log.logInfoMessage1("PUT in this server: key: " +key+" value: " + value);
+    log.logInfoMessage1("current address: " + ipAddress + " , port: " + portNum);
+  }
+
+
+
+  /**
+   * A helper function tries to convert all chars in a str to upper case chars.
+   * @param str an input str
+   * @return a str with upper case chars.
+   */
+  private static String toUpperCase(String str) {
+    StringBuilder result = new StringBuilder();
+    for(int i=0; i<str.length(); i++) {
+      result.append(Character.toUpperCase(str.charAt(i)));
+    }
+    return result.toString();
+  }
+
+  /**
+   * This method is used to hash sting and generate id.
+   * @param strToEncode the str that need to be hashed.
+   * @return id generated according to key
+   */
+  private static int generateIdUsingKey(String strToEncode) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    MessageDigest md = MessageDigest.getInstance("SHA-256"); // SHA for simple and quick hashing
+    md.update(strToEncode.getBytes("UTF-8"));
+    byte[] digestBuff = md.digest();
+    BigInteger hashVal = new BigInteger(1, digestBuff);
+    return Math.abs(hashVal.intValue()) % (int) Math.pow(2, staticM);
+  }
+
+
 }

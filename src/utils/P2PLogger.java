@@ -15,18 +15,23 @@ public class P2PLogger {
   }
 
   public void logInfoMessage(String infoMsg) {
+//    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+//    logger.info(timestamp + " " + infoMsg);
+  }
+
+  public void logInfoMessage1(String infoMsg) {
     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
     logger.info(timestamp + " " + infoMsg);
   }
 
   public void logErrorMessage(String errorMsg) {
-    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-    logger.severe(timestamp + " " + errorMsg);
+//    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+//    logger.severe(timestamp + " " + errorMsg);
   }
 
   public void logWarningMessage(String warningMsg) {
-    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-    logger.warning(timestamp + " " + warningMsg);
+//    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+//    logger.warning(timestamp + " " + warningMsg);
   }
 
 }
