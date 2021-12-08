@@ -181,11 +181,14 @@ public class NodeImpl extends AbstractNode {
       log.logErrorMessage("Connection failed in stabilize." + e.getMessage());
 
       try {
-        Thread.sleep(5000);
+//        Thread.sleep(5000);
         log.logInfoMessage("Reconnecting with this...");
-        x = this;
+//        x = this;
+        successor = this;
+        x = successor.getPredecessor();
       } catch (Exception e1) {
         log.logErrorMessage("Impossible" + e1.getMessage());
+
       }
 
     }
@@ -420,7 +423,7 @@ public class NodeImpl extends AbstractNode {
 
 //              System.out.println("Thread done");
 
-              Thread.sleep(20000);
+              Thread.sleep(5000);
             } catch (Exception e) {
               System.out.println(e.getMessage());
               e.printStackTrace();
@@ -460,13 +463,15 @@ public class NodeImpl extends AbstractNode {
         // we can also make methods static and call them directly.
 //              Node functionCaller = (Node) Naming.lookup("rmi://" + newNodeIpAddress
 //                      + ":" + newNodePort + "/Node");  // we can use random node
-        Node functionCaller = this;
+//        Node functionCaller = this;
         // here we know newNode (itself) must be alive and in chord.
         System.out.println("Please enter text here: ");
         Scanner keyboard = new Scanner(System.in);
         String commandLine;
         while ((commandLine = keyboard.nextLine()) != null) {
           try {
+//            this.stabilize();
+//            this.fixFingers();
             // In NodeImpl we need to check if the current server is the destination.
             // Note! inputCommand has format: "GET$$$KEY" or "PUT$$$KEY$$$VALUE"
 
@@ -485,16 +490,16 @@ public class NodeImpl extends AbstractNode {
             int keyId = generateIdUsingKey(key);
             if(operation.equals("GET")) {
               // no value in get.
-              Node successor = functionCaller.findSuccessor(keyId);
+              Node successor = this.findSuccessor(keyId);
               successor = (Node) Naming.lookup("rmi://" + successor.getIpAddress()
                       + ":" + successor.getPortNum() + "/Node");
               String value = successor.getFromStorage(key);
-              log.logInfoMessage("GET value: " + value);
+              log.logInfoMessage("GET value: " + value + " is done successfully" );
             } else {
               // operation == PUT or DELETE.
               String value = inputArgs[2];
 
-              Node successor = functionCaller.findSuccessor(keyId);
+              Node successor = this.findSuccessor(keyId);
               successor = (Node) Naming.lookup("rmi://" + successor.getIpAddress()
                       + ":" + successor.getPortNum() + "/Node");
               successor.putToStorage(key, value);
@@ -520,16 +525,16 @@ public class NodeImpl extends AbstractNode {
   @Override
   public String getFromStorage(String key) throws RemoteException {
     String value = mapOfThisServer.get(key);
-    log.logInfoMessage1("GET in this server: key: " +key+" value: " + value);
-    log.logInfoMessage1("current address: " + ipAddress + " , port: " + portNum);
+    log.logInfoMessageForStorageOperation("GET in this server: key: " +key+" value: " + value);
+    log.logInfoMessageForStorageOperation("current address: " + ipAddress + " , port: " + portNum);
     return value;
   }
 
   @Override
   public void putToStorage(String key, String value) throws RemoteException {
     mapOfThisServer.put(key, value);
-    log.logInfoMessage1("PUT in this server: key: " +key+" value: " + value);
-    log.logInfoMessage1("current address: " + ipAddress + " , port: " + portNum);
+    log.logInfoMessageForStorageOperation("PUT in this server: key: " +key+" value: " + value);
+    log.logInfoMessageForStorageOperation("current address: " + ipAddress + " , port: " + portNum);
   }
 
 
