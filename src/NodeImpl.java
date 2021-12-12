@@ -406,7 +406,6 @@ public class NodeImpl extends AbstractNode {
 
       newNode.createFingerTable();
       // nodeInChord.createFingerTable();
-
       LocateRegistry.createRegistry(newNodePort);
       Naming.rebind("rmi://" + newNodeIpAddress + ":" + newNodePort + "/Node", newNode);
 
