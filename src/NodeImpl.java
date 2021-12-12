@@ -135,7 +135,9 @@ public class NodeImpl extends AbstractNode {
       successor = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/Node");
       x = successor.getPredecessor();
 
-      log.logInfoMessage("Predecessor: " + x.getPortNum());
+      if(x != null) {
+        log.logInfoMessage("Predecessor: " + x.getPortNum());
+      }
     } catch (Exception e) {
 
       log.logErrorMessage("Connection failed in stabilize." + e.getMessage());
