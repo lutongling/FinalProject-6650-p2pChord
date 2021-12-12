@@ -36,8 +36,9 @@ public class NodeImpl extends AbstractNode {
 
       // log.logInfoMessage("Successor for given node: " + id + " is node: " + successor.getId());
     } catch (Exception e) {
-      log.logErrorMessage("Connection failed in findSuccessor. " + e.getMessage());
-      // e.printStackTrace();
+      log.logErrorMessage("Connection failed in findSuccessor. ");
+//      e.printStackTrace();
+      throw new RemoteException();
     }
 
     return successor;
@@ -69,8 +70,10 @@ public class NodeImpl extends AbstractNode {
           newNodeSuccessorId = newNode.getSuccessor().getId();
 
         } catch (Exception e) {
-          log.logErrorMessage("Connection failed in findPredecessor." + e.getMessage());
-          // e.printStackTrace();
+          log.logErrorMessage("Connection failed in findPredecessor.");
+          throw new RemoteException();
+
+          //e.printStackTrace();
         }
 
       }
@@ -140,7 +143,7 @@ public class NodeImpl extends AbstractNode {
       }
     } catch (Exception e) {
 
-      log.logErrorMessage("Connection failed in stabilize." + e.getMessage());
+      log.logErrorMessage("Connection failed in stabilize.");
 
       try {
         log.logInfoMessage("Reconnecting with this...");
@@ -148,7 +151,7 @@ public class NodeImpl extends AbstractNode {
         x = successor.getPredecessor();
 
       } catch (Exception e1) {
-        log.logErrorMessage("Impossible here if stabilized! " + e1.getMessage());
+        log.logErrorMessage("Impossible here if stabilized! ");
 
       }
 
@@ -166,7 +169,7 @@ public class NodeImpl extends AbstractNode {
 
       log.logInfoMessage("Successor: " + successor.getPortNum());
     } catch (Exception e) {
-      log.logErrorMessage("Connection failed for successor cin stabilize." + e.getMessage());
+      log.logErrorMessage("Connection failed for successor in stabilize.");
       // e.printStackTrace();
     }
 
@@ -199,9 +202,18 @@ public class NodeImpl extends AbstractNode {
 
     this.fingerTable[randomIdx].setNode(this.findSuccessor(this.fingerTable[randomIdx].getStart()));
 
-    log.logInfoMessage("Predecessor: " + this.getPredecessor().getPortNum());
+//    if (this.getPredecessor() != null) {
+//      log.logInfoMessage("Predecessor: " + this.getPredecessor().getPortNum());
+//    } else {
+//      log.logInfoMessage("doesn't have a predecessor yet");
+//    }
+//
+//    if (this.getSuccessor() != null) {
+//      log.logInfoMessage("Successor: " + this.getSuccessor().getPortNum());
+//    } else {
+//      log.logInfoMessage("doesn't have a successor yet");
+//    }
 
-    log.logInfoMessage("Successor: " + this.getSuccessor().getPortNum());
 
   }
 
@@ -326,7 +338,7 @@ public class NodeImpl extends AbstractNode {
               // This is the interval time between threads
               Thread.sleep(5000);
             } catch (Exception e) {
-              System.out.println(e.getMessage());
+              // System.out.println(e.getMessage());
               // e.printStackTrace();
             }
 
@@ -343,8 +355,8 @@ public class NodeImpl extends AbstractNode {
           try {
             newNode.consistentStore();
           } catch (Exception e) {
-            System.out.println(e.getMessage());
-            // e.printStackTrace();
+            // System.out.println(e.getMessage());
+            e.printStackTrace();
           }
 
         }
@@ -410,15 +422,15 @@ public class NodeImpl extends AbstractNode {
 
           } catch (Exception e) {
             log.logErrorMessage("No response from the server, will send " +
-                    "next request after 5 sec. Err message is: " + e.getMessage());
+                    "next request after 5 sec.");
             // e.printStackTrace();
             Thread.sleep(5000);
           }
         }
       } catch (Exception e) {
-        log.logErrorMessage(e.getMessage());
+        //log.logErrorMessage(e.getMessage());
         // System.out.println(e.getMessage());
-        // e.printStackTrace();
+         e.printStackTrace();
       }
 
     }

@@ -15,7 +15,7 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
   private static final long serialVersionUID = 1L;
 
   // m is the finger table size
-  protected int m;
+  protected static int m = 32;
   protected static int staticM;
 
   // Chord Node id
@@ -51,7 +51,7 @@ public abstract class AbstractNode extends UnicastRemoteObject implements Node, 
     this.ipAddress = ipAddress;
     this.portNum = portNum;
     this.id = generateId(ipAddress, portNum);
-    this.m = 32;
+    //this.m = 32;
     staticM = this.m;
     this.fingerTable = new FingerTableValue[m + 1];
     this.predecessor = null;
