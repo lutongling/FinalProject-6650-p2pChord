@@ -19,6 +19,11 @@ public class P2PLogger {
     logger.info(timestamp + " " + infoMsg);
   }
 
+  public void logInfoMessageForStorageOperation(String infoMsg) {
+    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+    logger.info(timestamp + " " + infoMsg);
+  }
+
   public void logErrorMessage(String errorMsg) {
     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
     logger.severe(timestamp + " " + errorMsg);
@@ -30,5 +35,4 @@ public class P2PLogger {
   }
 
 }
-
 

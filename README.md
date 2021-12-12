@@ -5,7 +5,6 @@
 This Chord project doesn't need any supernode, only need a dummy node. 
 Any node can refresh and rejoin!
 
-
 *How-to-test-Instruction(an Example)*
 --- Stage 1: Set up
 1. run dummy node 1111 <localhost 1111>
@@ -96,3 +95,4 @@ Option 3: via Docker file
   ```
 
   will run a new node at localhost:1112 in container node2, and make it join the network through an existing node running at localhost:1111 in container node1. 
+
