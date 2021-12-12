@@ -221,10 +221,7 @@ public class NodeImpl extends AbstractNode {
     try {
       node = (Node) Naming.lookup("rmi://" + node.getIpAddress() + ":" + node.getPortNum() + "/Node");
       this.setSuccessor(node.findSuccessor(this.getId()));
-    } catch (RemoteException e) {
-      log.logErrorMessage("Failed to join");
-      // e.printStackTrace();
-    } catch (MalformedURLException | NotBoundException e) {
+    } catch (Exception e) {
       log.logErrorMessage("Failed to join");
       // e.printStackTrace();
     }
