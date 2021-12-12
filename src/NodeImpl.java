@@ -107,7 +107,7 @@ public class NodeImpl extends AbstractNode {
       this.getSuccessor().setPredecessor(this);
     } catch (Exception e) {
       log.logErrorMessage("Can't get predecessor in initFingerTable: " + e.getMessage());
-      e.printStackTrace();
+      // e.printStackTrace();
     }
 
     for (int i = 1; i <= m - 1; i++) {
@@ -328,7 +328,7 @@ public class NodeImpl extends AbstractNode {
               Thread.sleep(5000);
             } catch (Exception e) {
               System.out.println(e.getMessage());
-              e.printStackTrace();
+              // e.printStackTrace();
             }
 
           }
@@ -344,7 +344,8 @@ public class NodeImpl extends AbstractNode {
           try {
             newNode.consistentStore();
           } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            // e.printStackTrace();
           }
 
         }
