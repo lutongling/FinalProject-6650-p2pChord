@@ -269,8 +269,7 @@ public class NodeImpl extends AbstractNode {
 
   public void echo(Node joinedNode) throws RemoteException {
     log.logInfoMessage("New joined node IP: " + joinedNode.getIpAddress() +
-            " New joined node Port" + joinedNode.getPortNum() +
-            " New joined node ID: " + joinedNode.getId());
+            " New joined node Port " + joinedNode.getPortNum());
   }
 
   public void createFingerTable() throws RemoteException {
