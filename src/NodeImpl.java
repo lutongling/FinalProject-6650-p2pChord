@@ -134,7 +134,8 @@ public class NodeImpl extends AbstractNode {
     try {
       successor = (Node) Naming.lookup("rmi://" + successor.getIpAddress() + ":" + successor.getPortNum() + "/Node");
       x = successor.getPredecessor();
-      log.logInfoMessage("Predecessor: " + x.getId());
+
+      log.logInfoMessage("Predecessor: " + x.getPortNum());
     } catch (Exception e) {
 
       log.logErrorMessage("Connection failed in stabilize." + e.getMessage());
@@ -161,7 +162,7 @@ public class NodeImpl extends AbstractNode {
 
       successor.notifyNode(this);
 
-      log.logInfoMessage("Successor: " + successor.getId());
+      log.logInfoMessage("Successor: " + successor.getPortNum());
     } catch (Exception e) {
       log.logErrorMessage("Connection failed for successor cin stabilize." + e.getMessage());
       // e.printStackTrace();
@@ -196,9 +197,9 @@ public class NodeImpl extends AbstractNode {
 
     this.fingerTable[randomIdx].setNode(this.findSuccessor(this.fingerTable[randomIdx].getStart()));
 
-    log.logInfoMessage("Predecessor: " + this.getPredecessor().getId());
+    log.logInfoMessage("Predecessor: " + this.getPredecessor().getPortNum());
 
-    log.logInfoMessage("Successor: " + this.getSuccessor().getId());
+    log.logInfoMessage("Successor: " + this.getSuccessor().getPortNum());
 
   }
 
