@@ -48,6 +48,7 @@ public interface Node extends Serializable, Remote {
    * and fixing fingers, we don't use it anymore.
    *
    * Initialize finger table of local node by a given node(n') that already in the network.
+   *
    * @param node the given node(n') that already in the network.
    * @throws RemoteException due to connecting via RMI
    */
@@ -59,6 +60,7 @@ public interface Node extends Serializable, Remote {
    *
    * This is the self-stabilization for the system. This is how newly-joined nodes are noticed by
    * the network, and how concurrency and failures are being handled.
+   *
    * @throws RemoteException due to connecting via RMI
    */
   void stabilize() throws RemoteException;
@@ -67,6 +69,7 @@ public interface Node extends Serializable, Remote {
    * This function is used to periodically refresh finger table entries.
    *
    * It is also used for handling concurrency and failures.
+   *
    * @throws RemoteException due to connecting via RMI
    */
   void fixFingers() throws RemoteException;
@@ -78,6 +81,7 @@ public interface Node extends Serializable, Remote {
    * The given node n' represents the potential predecessor of n's successor.
    *
    * This method is called at the end in stabilize.
+   *
    * @param node
    * @throws RemoteException
    */
@@ -89,6 +93,7 @@ public interface Node extends Serializable, Remote {
    *
    * Join does not make the rest of the network aware of itself. This is achieved by stabilize
    * method, which is calling the notify method.
+   *
    * @param node the given known node
    * @throws RemoteException due to connecting via RMI
    */
@@ -101,6 +106,7 @@ public interface Node extends Serializable, Remote {
    * and fixing fingers, we don't use it anymore.
    *
    * Update all nodes whose finger tables should refer to this node(n)
+   *
    * @throws RemoteException due to connecting via RMI
    */
   void updateOthers() throws RemoteException;
@@ -138,6 +144,7 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Get the id of this node.
+   *
    * @return the id of this node
    * @throws RemoteException due to connecting via RMI
    */
@@ -145,6 +152,7 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Set the id of this node.
+   *
    * @param id the given id to be set of this node
    * @throws RemoteException due to connecting via RMI
    */
@@ -152,6 +160,7 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Get the ip address of this node.
+   *
    * @return the ip address of this node
    * @throws RemoteException due to connecting via RMI
    */
@@ -159,6 +168,7 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Set the ip address of this node.
+   *
    * @param ipAddress the given ip address to be set of this node
    * @throws RemoteException due to connecting via RMI
    */
@@ -166,6 +176,7 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Get the port number of this node.
+   *
    * @return the port number of this node
    * @throws RemoteException due to connecting via RMI
    */
@@ -173,6 +184,7 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Set the port number of this node.
+   *
    * @param portNum the given port number to be set of this node
    * @throws RemoteException due to connecting via RMI
    */
@@ -180,6 +192,7 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Get the successor of this node.
+   *
    * @return the successor of this node
    * @throws RemoteException due to connecting via RMI
    */
@@ -187,6 +200,7 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Set the successor of this node.
+   *
    * @param node the given successor node to be set of this node
    * @throws RemoteException due to connecting via RMI
    */
@@ -194,6 +208,7 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Get the predecessor of this node.
+   *
    * @return the predecessor of this node
    * @throws RemoteException due to connecting via RMI
    */
@@ -201,6 +216,7 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Set the predecessor of this node.
+   *
    * @param node the given predecessor node to be set of this node
    * @throws RemoteException due to connecting via RMI
    */
@@ -208,6 +224,7 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Return the value from the key-value storage by the given key.
+   *
    * @param key the given key.
    * @return the value from the key-value storage by the given key
    * @throws RemoteException due to connecting via RMI
@@ -216,7 +233,8 @@ public interface Node extends Serializable, Remote {
 
   /**
    * Put the key-value pair to the storage by given key-value pair.
-   * @param key the given key
+   *
+   * @param key   the given key
    * @param value the given value
    * @throws RemoteException due to connecting via RMI
    */
@@ -226,6 +244,7 @@ public interface Node extends Serializable, Remote {
    * The simulation of a simple "client-side" that reads input from user to perform operations.
    *
    * This is being called in main(the entry point of the program).
+   *
    * @throws RemoteException due to connecting via RMI
    */
   void consistentStore() throws RemoteException;
