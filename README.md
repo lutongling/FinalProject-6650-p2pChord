@@ -40,7 +40,7 @@ Any node can refresh and rejoin! And it supports concurrent PUT/GET for key-valu
 
 **Stage 5: Re-joining old nodes that have been in the network but being shut down previously**
 
-12. run/restart 1113 <localhost 1113 localhost 
+12. run/restart 1113 <localhost 1113 localhost 1119>
 
 ***How-to-run-the-files***
 
