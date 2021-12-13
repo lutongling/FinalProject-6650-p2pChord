@@ -110,3 +110,15 @@ Any node can refresh and rejoin! And it supports concurrent PUT/GET for key-valu
 
   will run a new node at localhost:1112 in container node2, and make it join the network through an existing node running at localhost:1111 in container node1. 
 
+
+=====================================================================================
+
+**The core feature of this project is to show Chord peer-to-peer server system**
+
+*But we also make a simple client side to perform operations PUT and GET, but it runs in the same main/controller file*
+
+
+**IMPORTANT NOTICE: If you want to run the Client Side for testing KEY-VALUE PUT and GET**
+
+1. **Comment out** the implementation body of "logInfoMessage(String infoMsg)" method in the class P2PLogger(i.e. line 18 and 19) in the utils package.
+   In this way, it can get rid of the information log triggering by the stabilizing/fixing fingers threads by server-side, and only play with the client-side with a much cleaner screen.
