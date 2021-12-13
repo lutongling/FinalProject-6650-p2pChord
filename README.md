@@ -111,9 +111,8 @@ Any node can refresh and rejoin! And it supports concurrent PUT/GET for key-valu
   will run a new node at localhost:1112 in container node2, and make it join the network through an existing node running at localhost:1111 in container node1. 
 
 
-=====================================================================================
 
-**The core feature of this project is to show Chord peer-to-peer server system**
+# The core feature of this project is to show Chord peer-to-peer server system
 
 *But we also make a simple client side to perform operations PUT and GET, but it runs in the same main/controller file*
 
