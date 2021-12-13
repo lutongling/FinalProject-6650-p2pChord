@@ -32,21 +32,15 @@ Any node can refresh and rejoin! And it supports concurrent PUT/GET for key-valu
 
 9. After they are all stabilized, remove/shutdown 1113, to see other servers' reconnecting process/self-stabilization
 
-10. remove/shutdown 1115, to see other servers' reconnecting process/self-stabilization
-
-11. remove/shutdown 1117, to see other servers' reconnecting process/self-stabilization
-
 **Stage 4: Joining/Adding new nodes further**
 
-12. run 1119 based on 1118 and wait for 5 seconds <localhost 1119 localhost 1118>
+10. run 1118 based on 1116 and wait for 5 seconds <localhost 1118 localhost 1116>
 
-13. run 1120 based on 1116 and wait for 5 seconds <localhost 1120 localhost 1116>
+11. run 1119 based on 1114 and wait for 5 seconds <localhost 1119 localhost 1114>
 
 **Stage 5: Re-joining old nodes that have been in the network but being shut down previously**
 
-14. run/restart 1117
-
-15. run/restart 1113
+12. run/restart 1113 <localhost 1113 localhost 
 
 ***How-to-run-the-files***
 
