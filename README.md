@@ -3,42 +3,54 @@
 **Real Decentralized Chord p2p**
 
 This Chord project doesn't need any supernode, only need a dummy node. 
-Any node can refresh and rejoin!
+Any node can refresh and rejoin! And it supports concurrent PUT/GET for key-value pairs.
 
-*How-to-test-Instruction(an Example)*
---- Stage 1: Set up
+
+***How-to-test-Instruction(an Example)***
+
+**Stage 1: Set up**
+
 1. run dummy node 1111 <localhost 1111>
+
 2. run 1112 based on 1111 (It might be failed) and wait for 5 seconds <localhost 1112 localhost 1111>
+
 3. run 1113 based on 1112 and wait for 5 seconds <localhost 1113 localhost 1112>
+
 4. run 1114 based on 1113 and wait for 5 seconds <localhost 1114 localhost 1113>
 
---- Stage 2: To see if they can do self-stabilization and test a decentralized system
+**Stage 2: To see if they can do self-stabilization and test a decentralized system**
+
 5. After they are all stabilized, remove/shutdown dummy node 1111
+
 6. run 1115 based on 1114 and wait for 5 seconds <localhost 1115 localhost 1114>
+
 7. run 1116 based on 1115 and wait for 5 seconds <localhost 1116 localhost 1115>
+
 8. run 1117 based on 1112 and wait for 5 seconds <localhost 1117 localhost 1112>
 
---- Stage 3: To see if they can do self-stabilization and test a randomized peer-to-peer system not relying on any specific node
+**Stage 3: To see if they can do self-stabilization and test a randomized peer-to-peer system not relying on any specific node**
+
 9. After they are all stabilized, remove/shutdown 1113, to see other servers' reconnecting process/self-stabilization
-10. remove/shutdown 1115, to see other servers' reconnecting process/self-stabilization
-11. remove/shutdown 1117, to see other servers' reconnecting process/self-stabilization
 
---- Stage 4: Joining/Adding new nodes further
-12. run 1119 based on 1118 and wait for 5 seconds <localhost 1119 localhost 1118>
-13. run 1120 based on 1116 and wait for 5 seconds <localhost 1120 localhost 1116>
+**Stage 4: Joining/Adding new nodes further**
 
---- Stage 5: Re-joining old nodes that have been in the network but being shut down previously
-14. run/restart 1117
-15. run/restart 1113
+10. run 1118 based on 1116 and wait for 5 seconds <localhost 1118 localhost 1116>
 
-*How-to-run-the-files*
-Option 1: edit configurations using a Java IDE
+11. run 1119 based on 1114 and wait for 5 seconds <localhost 1119 localhost 1114>
+
+**Stage 5: Re-joining old nodes that have been in the network but being shut down previously**
+
+12. run/restart 1113 <localhost 1113 localhost 1119>
+
+***How-to-run-the-files***
+
+**Option 1: edit configurations using a Java IDE**
    - for dummy node, input two arguments <hostname, port number> 
-       e.g. localhost 1111
+      - e.g. localhost 1111
    - for other node, input four arguments <hostname1, port number 1, hostname2, port number 2>
-       e.g. localhost 1112 localhost 1111
+      - e.g. localhost 1112 localhost 1111
 
-Option 2: via command line/terminal
+**Option 2: via command line/terminal**
    - compile all the files in src 
         the only controller with the main method is NodeImpl, so run this class file)
 
@@ -48,13 +60,13 @@ Option 2: via command line/terminal
         java NodeImpl <dummay-node-hostname> <dummy-node-port-number>
         ```
 
-        ​	for example, the command to run dummy node at localhost:1111 will be:
+        for example, the command to run dummy node at localhost:1111 will be:
 
         ```
         java NodeImpl localhost 1111
         ```
 
-         for running **other node**:
+   - for running **other node**:
 
         ```
         java NodeImpl <new-node-hostname> <new-node-port-number> <existing-node-hostname> <existing-node-port-number>
@@ -66,7 +78,7 @@ Option 2: via command line/terminal
         java NodeImpl localhost 1112 localhost 1111
         ```
 
-Option 3: via Docker file
+**Option 3: via Docker file**
 
 - for running **dummy node**:
 
@@ -82,7 +94,9 @@ Option 3: via Docker file
 
   this will run the dummy node at localhost:1111 in a container called node1
 
+
 - for running **other node**:
+
 
   ```
   ./run_node.sh <new-node-container-name> <new-node-host-name> <new-node-port-number> <existing-node-container-name> <existing-node-port-number>
@@ -96,3 +110,14 @@ Option 3: via Docker file
 
   will run a new node at localhost:1112 in container node2, and make it join the network through an existing node running at localhost:1111 in container node1. 
 
+
+
+# The core feature of this project is to show Chord peer-to-peer server system
+
+*But we also make a simple client side to perform operations PUT and GET, but it runs in the same main/controller file*
+
+
+**IMPORTANT NOTICE: If you want to run the Client Side for testing KEY-VALUE PUT and GET**
+
+1. **Comment out** the implementation body of "logInfoMessage(String infoMsg)" method in the class P2PLogger(i.e. line 18 and 19) in the utils package.
+   In this way, it can get rid of the information log triggering by the stabilizing/fixing fingers threads by server-side, and only play with the client-side with a much cleaner screen.
