@@ -60,13 +60,13 @@ Any node can refresh and rejoin! And it supports concurrent PUT/GET for key-valu
         java NodeImpl <dummay-node-hostname> <dummy-node-port-number>
         ```
 
-        ​	for example, the command to run dummy node at localhost:1111 will be:
+        for example, the command to run dummy node at localhost:1111 will be:
 
         ```
         java NodeImpl localhost 1111
         ```
 
-         for running **other node**:
+   - for running **other node**:
 
         ```
         java NodeImpl <new-node-hostname> <new-node-port-number> <existing-node-hostname> <existing-node-port-number>
@@ -94,7 +94,9 @@ Any node can refresh and rejoin! And it supports concurrent PUT/GET for key-valu
 
   this will run the dummy node at localhost:1111 in a container called node1
 
+
 - for running **other node**:
+
 
   ```
   ./run_node.sh <new-node-container-name> <new-node-host-name> <new-node-port-number> <existing-node-container-name> <existing-node-port-number>
